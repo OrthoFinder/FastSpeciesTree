@@ -18,6 +18,8 @@ FastSpeciesTree is built using python. It was tested using ```python<=3.10``` on
 These can be installed locally or through conda using the .yml file. Conda can be installed from [link](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html)
 
 ### Installation
+Download FastSpeciesTree directly from the repository or by using GitClone/Conda (to add)
+
 Dependecies can be installed using conda with the followng yml file. To us download the .yml file and install using the following commands from inside the directory containing the yml with conda  active.
 
 ```
