@@ -1,2 +1,76 @@
-# FastSpeciesTree
-Fast Species Tree Inference
+FastSpeciesTree
+======
+FastSpeciesTree Inference using concatinated single copy orthologs. Alignments are generated using Psuedo-Alignments derived from overlaping BLAST hits to infer sequence alignemnts without using alignment tools - allowing for huge scalability gains over conventional concatinated sequence trees.
+
+FastSpeciesTree is built using python. It was tested using ```python<=3.10``` on Linux, WSL, and Mac.
+
+[figure placeholder]
+
+### Dependecies and Installation
+------
+### Dependecies
+1. diamond
+2. VeryFastTree
+3. Numpy
+4. scikit-learn
+5. iqtree (optional -s sensitive)
+
+These can be installed locally or through conda using the .yml file. Conda can be installed from [link](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html)
+
+### Installation
+Dependecies can be installed using conda with the followng yml file. To us download the .yml file and install using the following commands from inside the directory containing the yml with conda  active.
+
+```
+conda env create -f FastSpeciesTree.yml
+python3 FastSpeciesTree.py -h
+```
+### Usage
+------
+FastSpeciesTree is run from a single python script, aiming to be as simple as possible to run. it can be run by using:
+
+```python3 FastSpeciesTree.py```
+
+
+#### Flags
+
+```-h``` : help message
+
+```-f``` : path..to..files/proteome_folder : Input path to directory containing proteomes files in fasta format
+
+```-n``` : path..to..dir/Output_Folder_name : Output folder path.
+
+```-t``` : Number of cores -- Default = 2.
+
+```-s``` : Tree building method: fast = veryfasttree,sensitive = IQTree
+
+#### Example
+This is a simple example running FastSpeciesTree on a folder containing proteomes on the path : Project/Proteomes. The output files are written to Project/Results.
+```
+python3 FastSpeciesTree.py -f Project/Proteomes -n Project/Results
+```
+As the number of cores and tree method are not specified the default number of cores (2) and the tree method (VeryFastTree) are used. 
+
+To run using the sensitive model call IQTree as the tree builder. 
+```
+python3 FastSpeciesTree.py -f Project/Proteomes -n Project/Results -t 16 -s sensitive
+```
+This will run on the same input folder and write files to the same output path but using IQ-Tree as tree inference, running on 16 cores.
+
+### Output Files
+------
+##### /Blast_Results
+All Diamond results files for each of the input Proteomes against each BUSCO gene
+##### /Results
+BLAST_hit_matrix : All BLAST score results for all BUSCO genes and Proteomes.
+IQTree_Partition_file.partitions : Gene partition files for IQTree run.
+psuedo_alignment : Concatinated psuedo-aligment for all selected genes.
+Selected_Genes_Blast_matrix : BLAST score results for selected genes
+Results_File.nwk (VeryFastTree) : Tree inferred with VeryFastTree
+Results_File.treefile (IQTREE) : Tree inferred with IQTREE. Other IQ-Tree specific files may also be present.
+##### /temp
+
+##### /log_file
+
+
+
+
