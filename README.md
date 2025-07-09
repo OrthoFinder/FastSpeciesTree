@@ -44,15 +44,15 @@ FastSpeciesTree is run from a single python script, aiming to be as simple as po
 ```-s``` : Tree building method: fast = veryfasttree,sensitive = IQTree
 
 #### Example
-This is a simple example running FastSpeciesTree on a folder containing proteomes on the path : Project/Proteomes. The output files are written to Project/Results.
+This is a simple example running FastSpeciesTree on the Example Data containing proteomes on the path : Example_Data/Proteomes. The output files are written to Example_Data/Results.
 ```
-python3 FastSpeciesTree.py -f Project/Proteomes -n Project/Results
+python3 FastSpeciesTree.py -f Example_Data/Proteomes -n Example_Data/Results
 ```
 As the number of cores and tree method are not specified the default number of cores (2) and the tree method (VeryFastTree) are used. 
 
 To run using the sensitive model call IQTree as the tree builder. 
 ```
-python3 FastSpeciesTree.py -f Project/Proteomes -n Project/Results -t 16 -s sensitive
+python3 FastSpeciesTree.py -f Example_Data/Proteomes -n Example_Data/Results_IQTREE -t 16 -s sensitive
 ```
 This will run on the same input folder and write files to the same output path but using IQ-Tree as tree inference, running on 16 cores.
 
@@ -68,8 +68,13 @@ Selected_Genes_Blast_matrix : BLAST score results for selected genes
 Results_File.nwk (VeryFastTree) : Tree inferred with VeryFastTree
 Results_File.treefile (IQTREE) : Tree inferred with IQTREE. Other IQ-Tree specific files may also be present.
 ##### /temp
+#at#.fasta : Single BUSCO gene alignments 
+BUSCO_sequences.fasta : Fasta file containing all BUSCO genes for use by DIAMONAD
+BUSCO_seq_ids.txt : Annotation information for each BUSCO genes
+##### /log
+log_file.txt : contains further information on gene selection, Protoeme partitioning and other run commands
 
-##### /log_file
+
 
 
 
