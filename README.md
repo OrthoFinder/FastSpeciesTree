@@ -2,12 +2,11 @@ FastSpeciesTree
 ======
 FastSpeciesTree Inference using concatinated single copy orthologs. Alignments are generated using Psuedo-Alignments derived from overlaping BLAST hits to infer sequence alignemnts without using alignment tools - allowing for huge scalability gains over conventional concatinated sequence trees.
 
-FastSpeciesTree is built using python. It was tested using ```python<=3.10``` on Linux, WSL, and Mac.
-
-[figure placeholder]
+Reference: Pre-print coming soon!
 
 ### Dependecies and Installation
 ------
+FastSpeciesTree is built using python. It was tested using ```python<=3.10``` on Linux, WSL, and Mac.
 ### Dependecies
 1. diamond
 2. VeryFastTree
@@ -75,6 +74,11 @@ BUSCO_sequences.fasta : Fasta file containing all BUSCO genes for use by DIAMONA
 BUSCO_seq_ids.txt : Annotation information for each BUSCO genes
 ##### /log
 log_file.txt : contains further information on gene selection, Protoeme partitioning and other run commands
+
+## WorkFlow: 
+![alt text](https://github.com/OrthoFinder/FastSpeciesTree/blob/main/FST_WorkFlow.png "FastSpeciesTree WorkFlow")
+
+
 
 
 
