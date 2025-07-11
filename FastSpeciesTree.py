@@ -3905,7 +3905,7 @@ def Cross_Over_Pairs():
 ## Takes user inputs via argparse and sets defaults.
 ## returns a set of args to control runs.
 def flags():
-    parser = argparse.ArgumentParser(description="""Fast Species Tree \nLink:\nV 1.0 (2025)\n
+    parser = argparse.ArgumentParser(description="""Fast Species Tree \nLink:https://github.com/OrthoFinder/FastSpeciesTree\nV 1.0 (2025)\n
 Example Run:
                  
 Python3 Documents/FastSpeciesTree/FastSpecies_version_1.py -f Documents/Proteomes -n Documents/Output_Results/ -t 16 -s fast
@@ -3917,8 +3917,8 @@ The analysis will be run using 16 processors using VeryFastTree for species tree
     parser.add_argument("-f", help="path..to..files/proteome_folder : Input path to directory containing proteomes files in fasta format")
     parser.add_argument("-n", help="path..to..dir/Output_Folder_name : Output folder path.")
     parser.add_argument("-t", help="Number of cores -- Default = 1.",type=int, default=4)
-    parser.add_argument("-s", help="Tree building method: fast = veryfasttree, medium = IQTree ,sensitive = modelfinder -> IQTree",type=str,default="Fast")
-    parser.add_argument("-R", help="Randomly fraction MSA alignment (example: -R 10 will select at random 10 percent of all MSA columns)",type=int, default=100)
+    parser.add_argument("-s", help="Tree building method: fast = veryfasttree,sensitive = IQTree",type=str,default="Fast")
+    #parser.add_argument("-R", help="Randomly fraction MSA alignment (example: -R 10 will select at random 10 percent of all MSA columns)",type=int, default=100)
     
     
     args = vars(parser.parse_args())    
@@ -3936,7 +3936,7 @@ The analysis will be run using 16 processors using VeryFastTree for species tree
             print("No output directory path specified. Please use -f followed by a path to a dictory of Proteomes\nFor help use the -h flag")  
             sys.exit()            
     if os.path.exists(args["f"] + "/") == False:
-        print("\nInput path could not be found please check the input path is correct.")
+        print("\nNo input directory specified. Please use -f followed by a path to a dictory of Proteomes\nFor help use the -h flag")
         sys.exit()       
     if os.path.exists(args["n"] + "/") == True:
         print("\nOutput folder already exists please specify a new folder.")
@@ -3989,6 +3989,9 @@ def makedb_command(make_command:str,Output:str):
     output, error = process.communicate()
     if "Error: The sequences are expected to be proteins but only contain DNA letters." in str(error):
         write_log("\nError in file (contains only DNA letters) : " + make_command.split("--in")[1].split(" -")[0],Output,True)
+        return False
+    if "Is a directory" in str(error):
+        write_log("Directory found in input path - please make sure only proteomes.fasta are in the -f input_path",Output,True)
         return False
     else:
         write_log("Completed blast database : " + make_command.split("--in")[1].split(" -")[0],Output,False)
@@ -4196,7 +4199,7 @@ def pseudo_alignment_mulitprocessing(genome, sequence_order, Output,cutoff,query
                     else:                         
                         sequence = Matrix_of_sequences[0]
                     concatinated_sequence = concatinated_sequence + sequence                           
-                    gene_alignment.append([">"+genome+"\n"+sequence+"\n", Output + "/temp/" + seq + ".fasta"])
+                    gene_alignment.append([">"+genome+"\n"+sequence+"\n", Output + "/BUSCO_gene_alignments/" + seq + ".fasta"])
                     
                 else:
                     concatinated_sequence = concatinated_sequence + "-"*length
@@ -4238,7 +4241,7 @@ def psuedo_alignment(Input:str,Output:str,pathing:str,genes_to_use:list,cutoff:i
         if id in genes_to_use:
             sequence_order.append(gene[:gene.index("\n")])
             query_lengths.append(len(gene[gene.index("\n"):].replace("\n","")))
-            temp_sequence_file = open(Output + "/temp/" + gene[:gene.index("\n")] + ".fasta","w")
+            temp_sequence_file = open(Output + "/BUSCO_gene_alignments/" + gene[:gene.index("\n")] + ".fasta","w")
             temp_sequence_file.close()
             
     IQ_Tree_partition = open(Output + "/Results/IQTree_Partition_file.partitions","w")
@@ -4312,9 +4315,9 @@ def make_tree(Tree:str,pathing:str,Output:str,cores:int,genes_to_use:list):
     if Tree.upper() == "FAST":
         command = "VeryFastTree -threads " + str(cores) + " " + Output + "/Results/psuedo_alignment.fasta > " + Output + "/Results/" + Output.split("/")[-1] + ".nwk"
         os.system(command)
-        print("\n\n")
+        print("\nTree inference using VeryFastTree complete\n------------------------------------------")
         write_log("IQTREE can be run on a completed workflow using:\n" + iqtree_command,Output,True)
-        
+	
         
     if Tree.upper() == "SENSITIVE":
         #### need to multi-process this with 1 thread currently its a bit inefficeint with thread usage...
@@ -4333,10 +4336,12 @@ def make_output_folders(output:str):
     for_blast_results = output + "/Blast_Results"
     for_alignment_and_tree = output + "/Results"
     temp = output + "/temp"   
+    single_gene_alignments = output + "/BUSCO_gene_alignments"  
     os.mkdir(output)
     os.mkdir(for_blast_results)
     os.mkdir(for_alignment_and_tree)
     os.mkdir(temp)    
+    os.mkdir(single_gene_alignments)
     log_file= open(output + "/log_file.txt","w")
     log_file.close()
     
@@ -4567,7 +4572,7 @@ def reduce_alignment(Reduce,pathing,Output, query_lengths):
 ###  Main Function
 ### 
 if __name__ == "__main__":           
-    header = "\nFast Species Tree \nLink:\nV 1.0 (2025)\nAuthor: \nPlease cite:\n"
+    header = "\nFast Species Tree \nLink:https://github.com/OrthoFinder/FastSpeciesTree\nV 1.0 (2025)\nAuthor Jonathan Holmes: \nPlease cite: TBA\n"
     print(header)
     ##### library imports
     import sys
@@ -4590,8 +4595,8 @@ if __name__ == "__main__":
     cores = running_commands['t']
     pathing = running_commands["Path"]
     Tree = running_commands["s"]
-    Reduce = running_commands["R"]
-    
+    #Reduce = running_commands["R"]
+    Reduce = 100
 
     #### checks non-default library imports before running..
     try:
@@ -4672,7 +4677,7 @@ if __name__ == "__main__":
             write_log("\nMSA reduced in "+ str(time.time() - reduce_time)+"s",Output,True)        
         else:
             print("Cannot reduce columns with IQTree active - skipping step")
-    write_log("Individual gene alignments are in: " + Output + "/temp",Output,True)  
+    write_log("Individual gene alignments are in: " + Output + "/single_gene_alignments",Output,True)  
     write_log("The concatinated alignemnt is found in: " + Output + "/Results/psuedo_alignment",Output,True)    
     write_log("Alignment complete in: "+ str(time.time() - Psuedo_Alignment)+"s",Output,True) 
     
@@ -4685,10 +4690,10 @@ if __name__ == "__main__":
     write_log("Tree complete in: " + str(time.time() - tree) + "s",Output,True)  
     
     
-    write_log("\n\n\nSpecies Tree generated and Run finished\n---------------------------------------",Output,True)
+    write_log("\n\nSpecies Tree generated and Run finished\n---------------------------------------",Output,True)
     
     write_log("The species tree can be found in: " + Output + "/Results/",Output,True)        
-    write_log("total time taken: " + str(time.time() - start) + "s\n\n",Output,True)   
+    write_log("Total run time: " + str(time.time() - start) + "s\n\n",Output,True)   
     write_log(header,Output,True)
     sys.exit()
 
