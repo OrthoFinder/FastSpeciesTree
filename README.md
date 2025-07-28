@@ -44,7 +44,7 @@ FastSpeciesTree is run from a single python script, aiming to be as simple as po
 
 ```-f``` : path..to..files/proteome_folder : Input path to directory containing proteomes files in fasta format
 
-```-n``` : path..to..dir/Output_Folder_name : Output folder path.
+```-o``` : path..to..dir/Output_Folder_name : Output folder path.
 
 ```-t``` : Number of cores -- Default = 2.
 
@@ -81,11 +81,6 @@ BUSCO_sequences.fasta : Fasta file containing all BUSCO genes for use by DIAMONA
 BUSCO_seq_ids.txt : Annotation information for each BUSCO genes
 ##### /log
 log_file.txt : contains further information on gene selection, Protoeme partitioning and other run commands
-
-## WorkFlow: 
-![alt text](https://github.com/OrthoFinder/FastSpeciesTree/blob/main/FST_WorkFlow.png "FastSpeciesTree WorkFlow")
-
-
 
 
 
