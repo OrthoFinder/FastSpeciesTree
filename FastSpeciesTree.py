@@ -3905,19 +3905,19 @@ def Cross_Over_Pairs():
 ## Takes user inputs via argparse and sets defaults.
 ## returns a set of args to control runs.
 def flags():
-    parser = argparse.ArgumentParser(description="""Fast Species Tree \nLink:https://github.com/OrthoFinder/FastSpeciesTree\nV 1.0 (2025)\n
+    parser = argparse.ArgumentParser(description="""Fast Species Tree \nLink:\nV 1.0 (2025)\n
 Example Run:
                  
-Python3 Documents/FastSpeciesTree/FastSpecies_version_1.py -f Documents/Proteomes -n Documents/Output_Results/ -t 16 -s fast
+Python3 Documents/FastSpeciesTree/FastSpecies_version_1.py -f Documents/Proteomes -o Documents/Output_Results/ -t 16 -s fast
 
 The input data is a set of proteomes from inside the Proteomes directory with the output in Output_Results. 
 The analysis will be run using 16 processors using VeryFastTree for species tree inference.
                                      """,formatter_class=argparse.RawTextHelpFormatter)
     
     parser.add_argument("-f", help="path..to..files/proteome_folder : Input path to directory containing proteomes files in fasta format")
-    parser.add_argument("-n", help="path..to..dir/Output_Folder_name : Output folder path.")
-    parser.add_argument("-t", help="Number of cores -- Default = 1.",type=int, default=4)
-    parser.add_argument("-s", help="Tree building method: fast = veryfasttree,sensitive = IQTree",type=str,default="Fast")
+    parser.add_argument("-o", help="path..to..dir/Output_Folder_name : Output folder path.")
+    parser.add_argument("-t", help="Number of cores -- Default = 4.",type=int, default=4)
+    parser.add_argument("-s", help="Tree building method: fast = veryfasttree,sensitive = IQ-Tree",type=str,default="Fast")
     #parser.add_argument("-R", help="Randomly fraction MSA alignment (example: -R 10 will select at random 10 percent of all MSA columns)",type=int, default=100)
     
     
@@ -3928,17 +3928,17 @@ The analysis will be run using 16 processors using VeryFastTree for species tree
     args["Path"] = path
     
     # Checking paths and defaults.
-    if args["f"] == None or args["n"] == None:
+    if args["f"] == None or args["o"] == None:
         if args["f"] == None:
             print("No input directory specified. Please use -f followed by a path to a dictory of Proteomes\nFor help use the -h flag")  
             sys.exit()
         else:
-            print("No output directory path specified. Please use -f followed by a path to a dictory of Proteomes\nFor help use the -h flag")  
+            print("No output directory path specified. Please use -o followed by a path to a dictory of Proteomes\nFor help use the -h flag")  
             sys.exit()            
     if os.path.exists(args["f"] + "/") == False:
-        print("\nNo input directory specified. Please use -f followed by a path to a dictory of Proteomes\nFor help use the -h flag")
+        print("\nInput path could not be found please check the input path is correct.")
         sys.exit()       
-    if os.path.exists(args["n"] + "/") == True:
+    if os.path.exists(args["o"] + "/") == True:
         print("\nOutput folder already exists please specify a new folder.")
         sys.exit()  
     if args["s"].upper() != "FAST" and args["s"].upper() != "SENSITIVE":
@@ -3990,9 +3990,6 @@ def makedb_command(make_command:str,Output:str):
     if "Error: The sequences are expected to be proteins but only contain DNA letters." in str(error):
         write_log("\nError in file (contains only DNA letters) : " + make_command.split("--in")[1].split(" -")[0],Output,True)
         return False
-    if "Is a directory" in str(error):
-        write_log("Directory found in input path - please make sure only proteomes.fasta are in the -f input_path",Output,True)
-        return False
     else:
         write_log("Completed blast database : " + make_command.split("--in")[1].split(" -")[0],Output,False)
         return True
@@ -4008,10 +4005,11 @@ def make_diamond_db(Input:str,cores:int,Output:str,Pathing:str):
     jobs = []
     for file in os.listdir(Input):  
         if file.startswith(".") == False:
-            if Input[-1] == "/":
-                genome_path = Input + file
-            else:
-                genome_path = Input + "/" + file   
+            if file.endswith(".dmnd") == False:
+                if Input[-1] == "/":
+                    genome_path = Input + file
+                else:
+                    genome_path = Input + "/" + file   
         #command = "diamond makedb --threads 1 --quiet --ignore-warnings --in " + genome_path + " -d " + genome_path    # 8 = placeholders
         command = "diamond makedb --threads 1 --in " + genome_path + " -d " + genome_path    # 8 = placeholders
         jobs.append([command,Output])       
@@ -4033,7 +4031,9 @@ def make_diamond_db(Input:str,cores:int,Output:str,Pathing:str):
     #pathing: Location of output folder
 ## Alternative options are supplied..
 def diamond_blast(Input:str, blast_results:str, Sequence:str,Output,pathing:str):
-     command = "diamond blastp -d %s -q %s -o %s --outfmt 5 --quiet --ignore-warnings --evalue 0.05 -k 0 --max-hsps 0" % (Input,Sequence,blast_results)
+     #command = "diamond blastp -d %s -q %s -o %s --outfmt 5 --quiet --ignore-warnings --evalue 0.05 -k 0 --max-hsps 0 --threads 1" % (Input,Sequence,blast_results)
+     command = "diamond blastp -d %s -q %s -o %s --outfmt 5 --quiet --evalue 0.05 -k 0 --max-hsps 0 --threads 1" % (Input,Sequence,blast_results)
+
      #command = "diamond blastp -d %s -q %s -o %s --outfmt 5 --quiet --ignore-warnings --evalue 0.000002 --query-cover 75 --subject-cover 75" % (Input,Sequence,blast_results)
      #command = "diamond blastp --mid-sensitive -d %s -q %s -o %s --outfmt 5 --quiet --ignore-warnings" % (Input,Sequence,blast_results)
      
@@ -4043,6 +4043,7 @@ def diamond_blast(Input:str, blast_results:str, Sequence:str,Output,pathing:str)
      #subprocess doesnt finish in time to open for alignment resulting in many empty lines...requires flush?
      #subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
      write_log("Completed blast for: " + Input,Output,False)
+     
 
 ### Writes BUSCO genes to temp file and runs Diamond blastp against the user proteomes 
 # Calls diamond_blast
@@ -4066,6 +4067,7 @@ def do_blast(Input:str,Output:str,pathing:str,cores:int,busco_genes:str):
     with Pool(processes=cores) as pool:
         sub_process_matrix = pool.starmap_async(diamond_blast, jobs,chunksize=cores)
         sub_process_matrix.wait()
+        time.sleep(0.1)
 
 ## Extracts BLAST score data from the diamond blasts for each user proteome and ocnverts them into a numpy array.
 ## The best scoring single hit for each BUSCO gene for each proteome is returned as a column
@@ -4199,7 +4201,7 @@ def pseudo_alignment_mulitprocessing(genome, sequence_order, Output,cutoff,query
                     else:                         
                         sequence = Matrix_of_sequences[0]
                     concatinated_sequence = concatinated_sequence + sequence                           
-                    gene_alignment.append([">"+genome+"\n"+sequence+"\n", Output + "/BUSCO_gene_alignments/" + seq + ".fasta"])
+                    gene_alignment.append([">"+genome+"\n"+sequence+"\n", Output + "/gene_alignments/" + seq + ".fasta"])
                     
                 else:
                     concatinated_sequence = concatinated_sequence + "-"*length
@@ -4241,7 +4243,7 @@ def psuedo_alignment(Input:str,Output:str,pathing:str,genes_to_use:list,cutoff:i
         if id in genes_to_use:
             sequence_order.append(gene[:gene.index("\n")])
             query_lengths.append(len(gene[gene.index("\n"):].replace("\n","")))
-            temp_sequence_file = open(Output + "/BUSCO_gene_alignments/" + gene[:gene.index("\n")] + ".fasta","w")
+            temp_sequence_file = open(Output + "/gene_alignments/" + gene[:gene.index("\n")] + ".fasta","w")
             temp_sequence_file.close()
             
     IQ_Tree_partition = open(Output + "/Results/IQTree_Partition_file.partitions","w")
@@ -4286,7 +4288,7 @@ def psuedo_alignment(Input:str,Output:str,pathing:str,genes_to_use:list,cutoff:i
                         write_to_file(gene_seq[0],gene_seq[1])                       
 
             
-    write_log("\n" + str(len(missing_genomes)) + " of " + str(len(genomes_to_do)) + " Protoemes below inclusion threshold (" + str(cutoff) + "%)\n*if many genomes are missing consider increasing the number of genes used\n",Output,False)
+    write_log("\n" + str(len(missing_genomes)) + " of " + str(len(genomes_to_do)) + " Protoemes below inclusion threshold (" + str(cutoff) + "%)\n",Output,True)
 
     #Wrong number of characters for AEKF: expected 139715 but have 69855 instead.
     return missing_genomes, sum(query_lengths)
@@ -4315,9 +4317,9 @@ def make_tree(Tree:str,pathing:str,Output:str,cores:int,genes_to_use:list):
     if Tree.upper() == "FAST":
         command = "VeryFastTree -threads " + str(cores) + " " + Output + "/Results/psuedo_alignment.fasta > " + Output + "/Results/" + Output.split("/")[-1] + ".nwk"
         os.system(command)
-        print("\nTree inference using VeryFastTree complete\n------------------------------------------")
+        print("\n\n")
         write_log("IQTREE can be run on a completed workflow using:\n" + iqtree_command,Output,True)
-	
+        
         
     if Tree.upper() == "SENSITIVE":
         #### need to multi-process this with 1 thread currently its a bit inefficeint with thread usage...
@@ -4336,12 +4338,12 @@ def make_output_folders(output:str):
     for_blast_results = output + "/Blast_Results"
     for_alignment_and_tree = output + "/Results"
     temp = output + "/temp"   
-    single_gene_alignments = output + "/BUSCO_gene_alignments"  
+    alignments = output + "/gene_alignments"
     os.mkdir(output)
     os.mkdir(for_blast_results)
     os.mkdir(for_alignment_and_tree)
     os.mkdir(temp)    
-    os.mkdir(single_gene_alignments)
+    os.mkdir(alignments)    
     log_file= open(output + "/log_file.txt","w")
     log_file.close()
     
@@ -4417,7 +4419,7 @@ def cluster_results_table(results_matrix,gene_order,Input,Output):
         silhoutte_scores.append(silhouette_avg)
         write_log("For n_clusters =" +  str(n_clusters) + " the average silhouette_score is :" + str(silhouette_avg),Output, False)
  
-    
+     ### get number of cluster that gives the largets score
     if max(silhoutte_scores) <= 0.25: 
         clusters = [0]*species_ordered.shape[0]
         unique_clusters = set(clusters)
@@ -4434,7 +4436,6 @@ def cluster_results_table(results_matrix,gene_order,Input,Output):
 
     species_ids = range(0, len(clusters))
 
-
     speciesid_cluster_dict = {}
         
     for position, species in enumerate(species_ids):
@@ -4442,10 +4443,14 @@ def cluster_results_table(results_matrix,gene_order,Input,Output):
         
     cluster_sets = []
     named_sets = []
-    proteomes = os.listdir(Input)[::-1]
-    for i in proteomes:
-        if ".dmnd" in i:
-            proteomes.remove(i)
+    blast_output = Output + "/Blast_Results"
+    proteome_files = os.listdir(blast_output)
+    
+    
+    ## remove blast output string use inverted order to map to blast tree.
+    proteomes = []
+    for i in proteome_files[::-1]:
+        proteomes.append(i.replace("_diamond.txt",""))
     
     for cluster in unique_clusters:
         species_list = []
@@ -4464,7 +4469,10 @@ def cluster_results_table(results_matrix,gene_order,Input,Output):
     resulting_scores = []
 
     ### Extracts highly conservered genes from each cluster at 70% threshold.
+
     for cluster_set in cluster_sets:
+
+        #sys.exit()
         trimmed_cluster = numpy.copy(results_matrix)[:,cluster_set]
         cluster_genes = []
         cluster_pos = []
@@ -4572,7 +4580,7 @@ def reduce_alignment(Reduce,pathing,Output, query_lengths):
 ###  Main Function
 ### 
 if __name__ == "__main__":           
-    header = "\nFast Species Tree \nLink:https://github.com/OrthoFinder/FastSpeciesTree\nV 1.0 (2025)\nAuthor Jonathan Holmes: \nPlease cite: TBA\n"
+    header = "\nFast Species Tree \nLink:\nV 1.0 (2025)\nAuthor: Jonathan Holmes\nPlease cite:Coming soon\n"
     print(header)
     ##### library imports
     import sys
@@ -4591,12 +4599,12 @@ if __name__ == "__main__":
     Input = running_commands['f']
     if Input.endswith("/") == False:
         Input = Input + "/"
-    Output = running_commands['n']
+    Output = running_commands['o']
     cores = running_commands['t']
     pathing = running_commands["Path"]
     Tree = running_commands["s"]
-    #Reduce = running_commands["R"]
-    Reduce = 100
+    Reduce = 100#running_commands["R"]
+    
 
     #### checks non-default library imports before running..
     try:
@@ -4623,10 +4631,10 @@ if __name__ == "__main__":
     
     ### Outputs running information
     start = time.time()
-    write_log("Running FastSpeciesTree\n-----------------------",Output,True)
+    write_log("Running FastSpeciesTree (mode: " + Tree.upper() + ")\n----------------------------------------------",Output,True)
     write_log("Input path = " + Input,Output,True)
     write_log("Output path = " + Output,Output,True)
-    write_log("Running on "+ str(cores/2) + " cores",Output,True)
+    write_log("Running on "+ str(cores) + " cores",Output,True)
     write_log(str(datetime.now()),Output,True)
     
     ### makes blast database for each proteome file in user input
@@ -4677,23 +4685,23 @@ if __name__ == "__main__":
             write_log("\nMSA reduced in "+ str(time.time() - reduce_time)+"s",Output,True)        
         else:
             print("Cannot reduce columns with IQTree active - skipping step")
-    write_log("Individual gene alignments are in: " + Output + "/single_gene_alignments",Output,True)  
+    write_log("Individual gene alignments are in: " + Output + "/gene_alignments",Output,True)  
     write_log("The concatinated alignemnt is found in: " + Output + "/Results/psuedo_alignment",Output,True)    
     write_log("Alignment complete in: "+ str(time.time() - Psuedo_Alignment)+"s",Output,True) 
     
     ### generates the phylogenetic tree using fasttree   
     #write_log("genes selected and aligned in: " + str(time.time() - psuedo_alignment_start) + "s\n",Output)
-    write_log("\nMaking tree using: " + Tree + "\n-------------------",Output,True) 
+    write_log("\nMaking tree using: " + Tree.upper() + "\n-------------------",Output,True) 
     
     tree = time.time()
     make_tree(Tree,pathing,Output,cores,genes_to_use)
     write_log("Tree complete in: " + str(time.time() - tree) + "s",Output,True)  
     
     
-    write_log("\n\nSpecies Tree generated and Run finished\n---------------------------------------",Output,True)
+    write_log("\n\n\nSpecies Tree generated and Run finished\n---------------------------------------",Output,True)
     
     write_log("The species tree can be found in: " + Output + "/Results/",Output,True)        
-    write_log("Total run time: " + str(time.time() - start) + "s\n\n",Output,True)   
+    write_log("total time taken: " + str(time.time() - start) + "s\n\n",Output,True)   
     write_log(header,Output,True)
     sys.exit()
 
