@@ -4014,7 +4014,7 @@ def make_diamond_db(Input:str,cores:int,Output:str,Pathing:str):
         command = "diamond makedb --threads 1 --in " + genome_path + " -d " + genome_path    # 8 = placeholders
         jobs.append([command,Output])       
     with Pool(processes=cores) as pool:
-        sub_process_matrix = pool.starmap_async(makedb_command, jobs,chunksize=cores)
+        sub_process_matrix = pool.starmap_async(makedb_command, jobs)
         sub_process_matrix.wait()
 
     if False in sub_process_matrix.get():
@@ -4031,17 +4031,15 @@ def make_diamond_db(Input:str,cores:int,Output:str,Pathing:str):
     #pathing: Location of output folder
 ## Alternative options are supplied..
 def diamond_blast(Input:str, blast_results:str, Sequence:str,Output,pathing:str):
+     ## Alternaitve commands to change thresholds - this may be added to the main package
      #command = "diamond blastp -d %s -q %s -o %s --outfmt 5 --quiet --ignore-warnings --evalue 0.05 -k 0 --max-hsps 0 --threads 1" % (Input,Sequence,blast_results)
-     command = "diamond blastp -d %s -q %s -o %s --outfmt 5 --quiet --evalue 0.05 -k 0 --max-hsps 0 --threads 1" % (Input,Sequence,blast_results)
-
      #command = "diamond blastp -d %s -q %s -o %s --outfmt 5 --quiet --ignore-warnings --evalue 0.000002 --query-cover 75 --subject-cover 75" % (Input,Sequence,blast_results)
      #command = "diamond blastp --mid-sensitive -d %s -q %s -o %s --outfmt 5 --quiet --ignore-warnings" % (Input,Sequence,blast_results)
      
+     command = "diamond blastp -d %s -q %s -o %s --outfmt 5 --quiet --evalue 0.05 -k 0 --max-hsps 0 --threads 1" % (Input,Sequence,blast_results)
+     
      process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)    
      output, error = process.communicate()
-     #os.system(command)
-     #subprocess doesnt finish in time to open for alignment resulting in many empty lines...requires flush?
-     #subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
      write_log("Completed blast for: " + Input,Output,False)
      
 
@@ -4065,7 +4063,7 @@ def do_blast(Input:str,Output:str,pathing:str,cores:int,busco_genes:str):
                 write_seq.close()
                 jobs.append([Input + genome,blast_results,Sequences,Output,pathing]) 
     with Pool(processes=cores) as pool:
-        sub_process_matrix = pool.starmap_async(diamond_blast, jobs,chunksize=cores)
+        sub_process_matrix = pool.starmap_async(diamond_blast, jobs)
         sub_process_matrix.wait()
         time.sleep(0.1)
 
@@ -4136,7 +4134,6 @@ def chunks(lst, n):
         yield lst[i:i + n]
 
 def pseudo_alignment_mulitprocessing(genome, sequence_order, Output,cutoff,query_lengths):
-    time.sleep(0.1)
     output = Output + "/Results/psuedo_alignment.fasta"
     below_threshold = ""
     missing = 0
@@ -4144,7 +4141,7 @@ def pseudo_alignment_mulitprocessing(genome, sequence_order, Output,cutoff,query
     concatinated_sequence = ""
     package = []
     gene_alignment = []
-  
+    
 
     if "<Hit_num>" in blast_data:	
         for position,seq in enumerate(sequence_order):   
@@ -4193,8 +4190,6 @@ def pseudo_alignment_mulitprocessing(genome, sequence_order, Output,cutoff,query
                                         break
                             else:
                                 sequence = sequence + new_sequences[0][nucleotide]
-              
-                            ## can add some cuttoffs here???    
     
                     elif len(set(gene_names)) == len(gene_names):
                         sequence = Matrix_of_sequences[0]
@@ -4206,15 +4201,15 @@ def pseudo_alignment_mulitprocessing(genome, sequence_order, Output,cutoff,query
                 else:
                     concatinated_sequence = concatinated_sequence + "-"*length
                     missing = missing  + 1
-
+    else:
+        missing = len(genes_to_use)
+        
     presence = (missing/len(genes_to_use))*100
-
 
 
     if presence < cutoff:
         genome_new_name = genome.replace(".fasta","").replace(".faa","").replace(".fa","")
         package.append([">" + genome_new_name + "\n" + concatinated_sequence.replace("\n","") + "\n", output])
-                #print(len(concatinated_sequence))
     else:
         below_threshold = genome
 
@@ -4261,10 +4256,6 @@ def psuedo_alignment(Input:str,Output:str,pathing:str,genes_to_use:list,cutoff:i
             if genome.startswith(".") == False:
                 genomes_to_do.append(genome)
 
-    ## maybe split up genomes...then do it that way??? this is taking the longest time now :(
-
-    ### add multiprocessing here....
-    
     mp_list = []
     for genome in genomes_to_do:
         if genome.endswith("dmnd") == False:
@@ -4276,7 +4267,7 @@ def psuedo_alignment(Input:str,Output:str,pathing:str,genes_to_use:list,cutoff:i
     missing_genomes = []
     for chunk in chunked_list:
         with Pool(processes=cores) as pool:
-            missing = pool.starmap_async(pseudo_alignment_mulitprocessing, chunk)              
+            missing = pool.starmap_async(pseudo_alignment_mulitprocessing, chunk)     
             for mp_output in missing.get():
                 if len(mp_output) == 1:
                     missing_genomes.append(mp_output)
@@ -4287,10 +4278,8 @@ def psuedo_alignment(Input:str,Output:str,pathing:str,genes_to_use:list,cutoff:i
                     for gene_seq in gene_sequences:
                         write_to_file(gene_seq[0],gene_seq[1])                       
 
-            
+    
     write_log("\n" + str(len(missing_genomes)) + " of " + str(len(genomes_to_do)) + " Protoemes below inclusion threshold (" + str(cutoff) + "%)\n",Output,True)
-
-    #Wrong number of characters for AEKF: expected 139715 but have 69855 instead.
     return missing_genomes, sum(query_lengths)
 
 
@@ -4309,10 +4298,8 @@ def psuedo_alignment(Input:str,Output:str,pathing:str,genes_to_use:list,cutoff:i
 # Runs function :: run_model_finder
     
 def make_tree(Tree:str,pathing:str,Output:str,cores:int,genes_to_use:list):
-    ## for output to log file.
+
     iqtree_command = "iqtree -T %s -s %s -p %s -B 1000 --alrt 1000 --prefix %s -m MFP" % (str(round(cores)),Output + "/Results/psuedo_alignment.fasta" ,Output + "/Results/IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[0])
-
-
 
     if Tree.upper() == "FAST":
         command = "VeryFastTree -threads " + str(cores) + " " + Output + "/Results/psuedo_alignment.fasta > " + Output + "/Results/" + Output.split("/")[-1] + ".nwk"
@@ -4322,9 +4309,6 @@ def make_tree(Tree:str,pathing:str,Output:str,cores:int,genes_to_use:list):
         
         
     if Tree.upper() == "SENSITIVE":
-        #### need to multi-process this with 1 thread currently its a bit inefficeint with thread usage...
-        ### need some log of events like done gene (n of N)
-        
         write_log("Running IQTree\n",Output,True)        
         iqtree_run = subprocess.Popen(iqtree_command.split(), stdout=subprocess.PIPE)
         output, error = iqtree_run.communicate()
@@ -4487,11 +4471,12 @@ def cluster_results_table(results_matrix,gene_order,Input,Output):
                 cluster_pos.append(pos)
 
 
-
+        
         all_genes = all_genes + cluster_genes
         resulting_scores = resulting_scores + cluster_scores
         Selected_rows_for_graph = Selected_rows_for_graph + cluster_pos
-
+        
+    #### contains scores...
     Selected_rows_for_graph = list(set(Selected_rows_for_graph))
     selected_genes = list(all_genes)
 
@@ -4537,8 +4522,6 @@ def cluster_results_table(results_matrix,gene_order,Input,Output):
         sys.exit()
     return set_of_selected_genes
 
-    #sys.exit()
-
     
 ### Reduces alignemnt size by a % by randomly sampling columns
 # Input
@@ -4559,7 +4542,7 @@ def reduce_alignment(Reduce,pathing,Output, query_lengths):
     selection = random.sample(range(query_lengths), round(query_lengths*(Reduce/100)))
     
     
-    
+    time 
     
     with open(pseudo_alignment_path) as pseudo_alignment_file:
         with open(reduced_pseudo_alignment_path,"w") as reduced_pseudo_alignment_file:
@@ -4631,6 +4614,16 @@ if __name__ == "__main__":
     
     ### Outputs running information
     start = time.time()
+    write_log(header + "\n", Output, False)
+    write_log("Please cite all tools used where possible\n-----------------------------------------",Output,True)
+    write_log("DIAMOND:       https://www.nature.com/articles/s41592-021-01101-x",Output,True)   
+    write_log("VeryFastTree:  https://pubmed.ncbi.nlm.nih.gov/32573652/",Output,True)   
+    write_log("BUSCO:         https://pubmed.ncbi.nlm.nih.gov/31020564/.",Output,True)   
+    write_log("IQTREE:        https://pmc.ncbi.nlm.nih.gov/articles/PMC4271533/",Output,True)   
+    write_log("Numpy:         https://pubmed.ncbi.nlm.nih.gov/32939066/",Output,True)   
+    write_log("scikit-learn:  https://pmc.ncbi.nlm.nih.gov/articles/PMC3930868/\n",Output,True)   
+    
+    
     write_log("Running FastSpeciesTree (mode: " + Tree.upper() + ")\n----------------------------------------------",Output,True)
     write_log("Input path = " + Input,Output,True)
     write_log("Output path = " + Output,Output,True)
@@ -4672,10 +4665,13 @@ if __name__ == "__main__":
     
     write_log("\nGenerating Psuedo-Alignment\n---------------------------",Output,True)
     Psuedo_Alignment = time.time()
-    ### % presence cut off for a particular gene minimum presence..
-    cut_off = 90
+    ### % presence cut off for a particular gene minimum presence.. -- 
+    
+    cut_off = 70
     psuedo_alignment_start = time.time()
     missing_genomes, query_lengths = psuedo_alignment(Input,Output,pathing,genes_to_use,cut_off,Tree,cores)  	
+    
+    ## possible treeness or something # max numbers I'm not sure...
     ## do sliming here...
     if Reduce != 100:
         if Tree != "sensitive":
@@ -4699,10 +4695,11 @@ if __name__ == "__main__":
     
     
     write_log("\n\n\nSpecies Tree generated and Run finished\n---------------------------------------",Output,True)
-    
+    write_log(header,Output,True)
     write_log("The species tree can be found in: " + Output + "/Results/",Output,True)        
     write_log("total time taken: " + str(time.time() - start) + "s\n\n",Output,True)   
-    write_log(header,Output,True)
+      
+
     sys.exit()
 
 
