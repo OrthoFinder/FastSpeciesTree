@@ -3987,6 +3987,9 @@ The analysis will be run using 16 processors using VeryFastTree for species tree
 def makedb_command(make_command:str,Output:str):   
     process = subprocess.Popen(make_command.split(), stdout=subprocess.PIPE,stderr=subprocess.PIPE)    
     output, error = process.communicate()
+    if " Is a directory" in str(error): 
+        write_log("\nError in file (is a directory) : " + make_command.split("--in")[1].split(" -")[0],Output,True)
+        return False
     if "Error: The sequences are expected to be proteins but only contain DNA letters." in str(error):
         write_log("\nError in file (contains only DNA letters) : " + make_command.split("--in")[1].split(" -")[0],Output,True)
         return False
@@ -4013,14 +4016,13 @@ def make_diamond_db(Input:str,cores:int,Output:str,Pathing:str):
         #command = "diamond makedb --threads 1 --quiet --ignore-warnings --in " + genome_path + " -d " + genome_path    # 8 = placeholders
         command = "diamond makedb --threads 1 --in " + genome_path + " -d " + genome_path    # 8 = placeholders
         jobs.append([command,Output])       
+    
     with Pool(processes=cores) as pool:
         sub_process_matrix = pool.starmap_async(makedb_command, jobs)
         sub_process_matrix.wait()
-
-    if False in sub_process_matrix.get():
-        print("Error in Input files see log for more information")
-        print("Exiting")
-        sys.exit()
+        if False in sub_process_matrix.get():
+            write_log("Error Making BLAST databases from input Proteomes : please check the log file for more information in " + Output ,Output,True)
+            sys.exit()
 
 ### Multi-processing function to run blast from the fasta file of BUSCO genes against the user proteomes 
 # Inputs: 
@@ -4037,10 +4039,10 @@ def diamond_blast(Input:str, blast_results:str, Sequence:str,Output,pathing:str)
      #command = "diamond blastp --mid-sensitive -d %s -q %s -o %s --outfmt 5 --quiet --ignore-warnings" % (Input,Sequence,blast_results)
      
      command = "diamond blastp -d %s -q %s -o %s --outfmt 5 --quiet --evalue 0.05 -k 0 --max-hsps 0 --threads 1" % (Input,Sequence,blast_results)
-     
-     process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)    
+     process = subprocess.Popen(command.split(), stdout=subprocess.PIPE,stderr=subprocess.PIPE)    
      output, error = process.communicate()
      write_log("Completed blast for: " + Input,Output,False)
+
      
 
 ### Writes BUSCO genes to temp file and runs Diamond blastp against the user proteomes 
@@ -4055,7 +4057,7 @@ def do_blast(Input:str,Output:str,pathing:str,cores:int,busco_genes:str):
     jobs = []
     for genome in os.listdir(Input):
         if genome.endswith(".dmnd") == False:
-            if genome.startswith(".") == False:
+            if genome.startswith(".") == False:                
                 blast_results = Output + "/Blast_Results/" + genome + "_diamond.txt"
                 Sequences = Output + "/temp/BUSCO_sequences.fasta"
                 write_seq = open(Sequences,"w")
@@ -4065,7 +4067,7 @@ def do_blast(Input:str,Output:str,pathing:str,cores:int,busco_genes:str):
     with Pool(processes=cores) as pool:
         sub_process_matrix = pool.starmap_async(diamond_blast, jobs)
         sub_process_matrix.wait()
-        time.sleep(0.1)
+
 
 ## Extracts BLAST score data from the diamond blasts for each user proteome and ocnverts them into a numpy array.
 ## The best scoring single hit for each BUSCO gene for each proteome is returned as a column
@@ -4206,11 +4208,12 @@ def pseudo_alignment_mulitprocessing(genome, sequence_order, Output,cutoff,query
         
     presence = (missing/len(genes_to_use))*100
 
-
     if presence < cutoff:
+        
         genome_new_name = genome.replace(".fasta","").replace(".faa","").replace(".fa","")
         package.append([">" + genome_new_name + "\n" + concatinated_sequence.replace("\n","") + "\n", output])
     else:
+        
         below_threshold = genome
 
     if len(below_threshold) != 0:
@@ -4228,7 +4231,6 @@ def psuedo_alignment(Input:str,Output:str,pathing:str,genes_to_use:list,cutoff:i
     output = open(Output + "/Results/psuedo_alignment.fasta","w")
     output_name = Output + "/Results/psuedo_alignment.fasta"
     output.close()
-    
     query_lengths = []    
     sequence_order = []
     
@@ -4279,7 +4281,7 @@ def psuedo_alignment(Input:str,Output:str,pathing:str,genes_to_use:list,cutoff:i
                         write_to_file(gene_seq[0],gene_seq[1])                       
 
     
-    write_log("\n" + str(len(missing_genomes)) + " of " + str(len(genomes_to_do)) + " Protoemes below inclusion threshold (" + str(cutoff) + "%)\n",Output,True)
+    write_log("\n" + str(len(missing_genomes)) + " of " + str(len(genomes_to_do)) + " Protoemes below inclusion threshold (" + str(100 - cutoff) + "%)\n",Output,True)
     return missing_genomes, sum(query_lengths)
 
 
@@ -4302,11 +4304,11 @@ def make_tree(Tree:str,pathing:str,Output:str,cores:int,genes_to_use:list):
     iqtree_command = "iqtree -T %s -s %s -p %s -B 1000 --alrt 1000 --prefix %s -m MFP" % (str(round(cores)),Output + "/Results/psuedo_alignment.fasta" ,Output + "/Results/IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[0])
 
     if Tree.upper() == "FAST":
-        command = "VeryFastTree -threads " + str(cores) + " " + Output + "/Results/psuedo_alignment.fasta > " + Output + "/Results/" + Output.split("/")[-1] + ".nwk"
-        os.system(command)
+        FastTree_command = "VeryFastTree -quiet -threads " + str(cores) + " -out "  + Output + "/Results/" + Output.split("/")[-1] + ".nwk " + Output + "/Results/psuedo_alignment.fasta"
+        iqtree_run = subprocess.Popen(FastTree_command.split(), stdout=subprocess.PIPE)
+        output, error = iqtree_run.communicate()
         print("\n\n")
         write_log("IQTREE can be run on a completed workflow using:\n" + iqtree_command,Output,True)
-        
         
     if Tree.upper() == "SENSITIVE":
         write_log("Running IQTree\n",Output,True)        
@@ -4453,8 +4455,8 @@ def cluster_results_table(results_matrix,gene_order,Input,Output):
     resulting_scores = []
 
     ### Extracts highly conservered genes from each cluster at 70% threshold.
-
-    for cluster_set in cluster_sets:
+    gene_count_dict = {}
+    for index,cluster_set in enumerate(cluster_sets):
 
         #sys.exit()
         trimmed_cluster = numpy.copy(results_matrix)[:,cluster_set]
@@ -4469,12 +4471,19 @@ def cluster_results_table(results_matrix,gene_order,Input,Output):
                 cluster_genes.append(gene_order[pos])    
                 cluster_scores.append(sum(row)/numpy.count_nonzero(row))
                 cluster_pos.append(pos)
-
-
+        """
+        for prot in named_sets[index]:
+            gene_count_dict[prot] = len(cluster_genes)
+        """
         
+    
         all_genes = all_genes + cluster_genes
         resulting_scores = resulting_scores + cluster_scores
         Selected_rows_for_graph = Selected_rows_for_graph + cluster_pos
+        
+        
+        
+        
         
     #### contains scores...
     Selected_rows_for_graph = list(set(Selected_rows_for_graph))
@@ -4531,6 +4540,7 @@ def cluster_results_table(results_matrix,gene_order,Input,Output):
 #   query_lengths : gene lengths to crates sample mask
 # Output
 #   A file containing the reduce sample size.
+# Currently not an option due to limited testing to re-add simply edit the Reduce Flag in if __name__ == "__main__":  
 def reduce_alignment(Reduce,pathing,Output, query_lengths):
           
     pseudo_alignment_path = "/".join([Output,"Results","psuedo_alignment.fasta"])
@@ -4565,6 +4575,7 @@ def reduce_alignment(Reduce,pathing,Output, query_lengths):
 if __name__ == "__main__":           
     header = "\nFast Species Tree \nLink:\nV 1.0 (2025)\nAuthor: Jonathan Holmes\nPlease cite:Coming soon\n"
     print(header)
+    
     ##### library imports
     import sys
     import os
@@ -4577,7 +4588,7 @@ if __name__ == "__main__":
     import itertools
     import random
     
-    ### Extracts flags and converts to readable format
+    ### Extracts flags and converts to readable format...
     running_commands = flags()
     Input = running_commands['f']
     if Input.endswith("/") == False:
@@ -4615,7 +4626,7 @@ if __name__ == "__main__":
     ### Outputs running information
     start = time.time()
     write_log(header + "\n", Output, False)
-    write_log("Please cite all tools used where possible\n-----------------------------------------",Output,True)
+    write_log("Please cite the tools Fast Species Tree relies on\n---------------------------------------",Output,True)
     write_log("DIAMOND:       https://www.nature.com/articles/s41592-021-01101-x",Output,True)   
     write_log("VeryFastTree:  https://pubmed.ncbi.nlm.nih.gov/32573652/",Output,True)   
     write_log("BUSCO:         https://pubmed.ncbi.nlm.nih.gov/31020564/.",Output,True)   
@@ -4642,7 +4653,7 @@ if __name__ == "__main__":
     write_log("\nRunning BLAST\n-------------",Output,True)
     do_blast(Input, Output, pathing, cores,blast_queries())	
     write_log("\n",Output,False)     
-    write_log("BLAST results can be found in: " + Output + "/Results/BLAST_hit_matrix.csv",Output,True)    
+    write_log("BLAST will be sent to: " + Output + "/Results/BLAST_hit_matrix.csv",Output,True)    
     write_log("Completed Blast in: "  + str(time.time() - blast) +  "s",Output,True)
     write_log("\nSelecting Genes\n---------------",Output,True)
 
@@ -4651,13 +4662,13 @@ if __name__ == "__main__":
     results_matrix, gene_order = pull_blast_data(pathing , Output)
     cluster_time = time.time()
 
-    ### Run clustering
+    ### Run clustering...
+    #genes_to_use,gene_count_dict = cluster_results_table(results_matrix,gene_order,Input,Output)
     genes_to_use = cluster_results_table(results_matrix,gene_order,Input,Output)
     genes_and_annotations = annotations(genes_to_use,pathing, Output)
     write_log("\n" + str(len(genes_to_use)) + " genes used",Output,True)
 
     ### generates the pseudo alignment for each of the selected genes across the database - outputs missing genes.. 
-    
     write_log("\nGenes selected:\n---------------\n" + "\n".join(genes_and_annotations) + "\n",Output,False)   
     write_log("Selected genes can be found in: " + Output + "/Results/Selected_Genes_Blast_matrix.csv",Output,True)    
     write_log("Genes selected in: "+ str(time.time() - cluster_time)+"s",Output,True)        
@@ -4667,7 +4678,9 @@ if __name__ == "__main__":
     Psuedo_Alignment = time.time()
     ### % presence cut off for a particular gene minimum presence.. -- 
     
-    cut_off = 70
+    ### global presence/absence value i.e. must contain at least 5% of the total genes
+    allow_missing = 5
+    cut_off = 100 - allow_missing
     psuedo_alignment_start = time.time()
     missing_genomes, query_lengths = psuedo_alignment(Input,Output,pathing,genes_to_use,cut_off,Tree,cores)  	
     
@@ -4685,7 +4698,7 @@ if __name__ == "__main__":
     write_log("The concatinated alignemnt is found in: " + Output + "/Results/psuedo_alignment",Output,True)    
     write_log("Alignment complete in: "+ str(time.time() - Psuedo_Alignment)+"s",Output,True) 
     
-    ### generates the phylogenetic tree using fasttree   
+    ### generates the phylogenetic tree using fasttree....   
     #write_log("genes selected and aligned in: " + str(time.time() - psuedo_alignment_start) + "s\n",Output)
     write_log("\nMaking tree using: " + Tree.upper() + "\n-------------------",Output,True) 
     
@@ -4701,8 +4714,5 @@ if __name__ == "__main__":
       
 
     sys.exit()
-
-
-
 
 
