@@ -3899,6 +3899,11 @@ def Cross_Over_Pairs():
     #cross_over = [['1018517at2759', '102360at2157'], ['102360at2157', '1018517at2759'], ['1054741at2', '392369at2759'], ['108145at2157', '2035880at2'], ['1115196at2759', '469058at2'], ['1115196at2759', '22747at2157'], ['114285at2157', '1713391at2'], ['115425at2157', '1766414at2'], ['1166299at2', '36028at2157'], ['1178688at2759', '1937493at2'], ['1211060at2', '93256at2157'], ['1217666at2759', '59861at2157'], ['126193at2157', '1488436at2759'], ['1346419at2', '56027at2157'], ['1398618at2', '80629at2157'], ['143460at2', '1642at2157'], ['143460at2', '17053at2157'], ['14454at2157', '665824at2'], ['1488436at2759', '126193at2157'], ['1540940at2', '80498at2157'], ['1572673at2', '65833at2157'], ['1623045at2', '63341at2157'], ['1642at2157', '143460at2'], ['1642at2157', '182107at2'], ['1692188at2', '91154at2157'], ['17053at2157', '143460at2'], ['17053at2157', '1592033at2'], ['1713391at2', '114285at2157'], ['1766414at2', '115425at2157'], ['182107at2', '1642at2157'], ['1844275at2', '51351at2157'], ['1844275at2', '43727at2157'], ['1893906at2', '99236at2157'], ['1937493at2', '1178688at2759'], ['2035880at2', '108145at2157'], ['226836at2', '24288at2157'], ['22747at2157', '469058at2'], ['22747at2157', '1115196at2759'], ['232152at2', '35648at2157'], ['23221at2157', '533698at2'], ['24257at2157', '874197at2'], ['24288at2157', '226836at2'], ['26038at2', '860at2157'], ['267682at2', '37299at2157'], ['320059at2759', '7724at2157'], ['35648at2157', '232152at2'], ['35861at2157', '898782at2759'], ['36028at2157', '1166299at2'], ['37299at2157', '267682at2'], ['384865at2', '99842at2157'], ['3905at2157', '4421at2'], ['392369at2759', '504464at2'], ['392369at2759', '1054741at2'], ['43727at2157', '1844275at2'], ['4421at2', '3905at2157'], ['4421at2', '66811at2157'], ['46017at2157', '462069at2'], ['462069at2', '46017at2157'], ['469058at2', '22747at2157'], ['469058at2', '1115196at2759'], ['47919at2157', '665824at2'], ['504464at2', '392369at2759'], ['51351at2157', '1844275at2'], ['533698at2', '23221at2157'], ['56027at2157', '1346419at2'], ['58022at2157', '932854at2'], ['59861at2157', '1217666at2759'], ['62508at2157', '923547at2'], ['63341at2157', '1623045at2'], ['6590at2157', '761140at2'], ['665824at2', '14454at2157'], ['665824at2', '47919at2157'], ['66811at2157', '4421at2'], ['761140at2', '6590at2157'], ['7724at2157', '320059at2759'], ['7896at2157', '91428at2'], ['80498at2157', '1540940at2'], ['80629at2157', '1398618at2'], ['837522at2', '8899at2157'], ['860at2157', '26038at2'], ['860at2157', '932854at2'], ['874197at2', '24257at2157'], ['8899at2157', '837522at2'], ['898782at2759', '35861at2157'], ['90817at2157', '932854at2'], ['91154at2157', '1692188at2'], ['91428at2', '7896at2157'], ['923547at2', '62508at2157'], ['93256at2157', '1211060at2'], ['932854at2', '58022at2157'], ['932854at2', '860at2157'], ['932854at2', '90817at2157'], ['99236at2157', '1893906at2'], ['99842at2157', '384865at2']]
     # 0.01 evalue within and across matrices
     cross_over = [['1014314at2759', '325552at2759'], ['1014314at2759', '866359at2759'], ['1018517at2759', '102360at2157'], ['102360at2157', '1018517at2759'], ['1025450at2759', '418107at2759'], ['104254at2157', '121171at2157'], ['1049599at2759', '1112002at2759'], ['1054741at2', '392369at2759'], ['108145at2157', '2035880at2'], ['1107630at2759', '1445102at2759'], ['1112002at2759', '1049599at2759'], ['1115196at2759', '469058at2'], ['1115196at2759', '22747at2157'], ['1129824at2759', '858842at2759'], ['114285at2157', '1713391at2'], ['115425at2157', '1766414at2'], ['1166299at2', '36028at2157'], ['1173229at2759', '325552at2759'], ['1178688at2759', '1937493at2'], ['1211060at2', '93256at2157'], ['121171at2157', '104254at2157'], ['1217666at2759', '59861at2157'], ['126193at2157', '1488436at2759'], ['1338131at2759', '1364586at2759'], ['1339553at2759', '1003258at2759'], ['1346419at2', '56027at2157'], ['1355894at2759', '1284731at2759'], ['1364586at2759', '1338131at2759'], ['1398618at2', '80629at2157'], ['1421503at2759', '1428854at2759'], ['1428854at2759', '1421503at2759'], ['143460at2', '182107at2'], ['143460at2', '1642at2157'], ['143460at2', '17053at2157'], ['1445102at2759', '1107630at2759'], ['14454at2157', '665824at2'], ['1488436at2759', '126193at2157'], ['1504821at2', '1846503at2'], ['1540940at2', '80498at2157'], ['1572673at2', '65833at2157'], ['1592033at2', '182107at2'], ['1623045at2', '63341at2157'], ['1642at2157', '143460at2'], ['1642at2157', '182107at2'], ['1642at2157', '25592at2157'], ['1692188at2', '91154at2157'], ['17053at2157', '25592at2157'], ['17053at2157', '143460at2'], ['17053at2157', '1592033at2'], ['1713391at2', '114285at2157'], ['1766414at2', '115425at2157'], ['182107at2', '143460at2'], ['182107at2', '1642at2157'], ['182107at2', '1592033at2'], ['1844275at2', '51351at2157'], ['1844275at2', '43727at2157'], ['1846503at2', '1504821at2'], ['1893906at2', '99236at2157'], ['1937493at2', '1178688at2759'], ['2035880at2', '108145at2157'], ['21317at2157', '66209at2157'], ['226836at2', '24288at2157'], ['22747at2157', '469058at2'], ['22747at2157', '1115196at2759'], ['22747at2157', '24288at2157'], ['232152at2', '35648at2157'], ['23221at2157', '533698at2'], ['24257at2157', '37207at2157'], ['24257at2157', '874197at2'], ['24288at2157', '226836at2'], ['24288at2157', '22747at2157'], ['25592at2157', '17053at2157'], ['25592at2157', '1642at2157'], ['25871at2157', '90641at2157'], ['26038at2', '860at2157'], ['26038at2', '932854at2'], ['261328at2759', '621827at2759'], ['267682at2', '37299at2157'], ['320059at2759', '7724at2157'], ['325552at2759', '621827at2759'], ['325552at2759', '1014314at2759'], ['325552at2759', '1173229at2759'], ['330169at2759', '901894at2759'], ['35648at2157', '232152at2'], ['35861at2157', '898782at2759'], ['36028at2157', '1166299at2'], ['37207at2157', '24257at2157'], ['37299at2157', '267682at2'], ['384865at2', '99842at2157'], ['3905at2157', '4421at2'], ['392369at2759', '504464at2'], ['392369at2759', '83779at2759'], ['392369at2759', '1054741at2'], ['418107at2759', '1025450at2759'], ['430176at2', '837522at2'], ['43727at2157', '51351at2157'], ['43727at2157', '1844275at2'], ['4421at2', '3905at2157'], ['4421at2', '66811at2157'], ['46017at2157', '462069at2'], ['462069at2', '46017at2157'], ['469058at2', '22747at2157'], ['469058at2', '1115196at2759'], ['47919at2157', '665824at2'], ['504464at2', '392369at2759'], ['504464at2', '1054741at2'], ['51351at2157', '1844275at2'], ['51351at2157', '43727at2157'], ['533698at2', '23221at2157'], ['56027at2157', '1346419at2'], ['58022at2157', '932854at2'], ['59861at2157', '1217666at2759'], ['621827at2759', '261328at2759'], ['621827at2759', '325552at2759'], ['621827at2759', '388820at2759'], ['62508at2157', '923547at2'], ['63341at2157', '1623045at2'], ['6590at2157', '761140at2'], ['66209at2157', '21317at2157'], ['665824at2', '14454at2157'], ['665824at2', '47919at2157'], ['66811at2157', '4421at2'], ['687505at2759', '858842at2759'], ['7046at2157', '8922at2157'], ['70865at2157', '119044at2157'], ['759498at2759', '779909at2759'], ['761140at2', '6590at2157'], ['7724at2157', '320059at2759'], ['779909at2759', '759498at2759'], ['779909at2759', '1173229at2759'], ['7896at2157', '91428at2'], ['80498at2157', '1540940at2'], ['80629at2157', '1398618at2'], ['837522at2', '8899at2157'], ['837522at2', '430176at2'], ['83779at2759', '392369at2759'], ['858842at2759', '687505at2759'], ['858842at2759', '1129824at2759'], ['860at2157', '26038at2'], ['860at2157', '932854at2'], ['866359at2759', '937275at2759'], ['866359at2759', '1014314at2759'], ['874197at2', '24257at2157'], ['8899at2157', '837522at2'], ['8922at2157', '7046at2157'], ['898782at2759', '35861at2157'], ['901894at2759', '330169at2759'], ['90641at2157', '25871at2157'], ['90817at2157', '932854at2'], ['91154at2157', '1692188at2'], ['91428at2', '7896at2157'], ['923547at2', '62508at2157'], ['93256at2157', '1211060at2'], ['932854at2', '58022at2157'], ['932854at2', '860at2157'], ['932854at2', '26038at2'], ['932854at2', '90817at2157'], ['937275at2759', '866359at2759'], ['99236at2157', '1893906at2'], ['99842at2157', '384865at2']]
+    ### ^^ this is the 0.01 e-value run..
+    #####
+    
+    
+    
     return cross_over
 
 
@@ -4288,7 +4293,9 @@ def psuedo_alignment(Input:str,Output:str,pathing:str,genes_to_use:list,cutoff:i
 
 
     
-### generates the phylogenetic tree from the pseudo-alignment
+### generates the phylogenetic tree from the pseudo-alignment based on use selection
+# VeryFastTree directly from the the trimmed aligment
+# IQ-Tree : two stages model finder - reduce models - iqtree
 # Input:
     #Tree - tree method used : Fast = veryfasttree : sensitive = IQTREE using modelfinder
     #Output - output file path
@@ -4297,24 +4304,36 @@ def psuedo_alignment(Input:str,Output:str,pathing:str,genes_to_use:list,cutoff:i
     #genes_to_use - a list of genes to use
 # Output
     # none
-# Runs function :: run_model_finder
+# Runs function :: Extract_Best_Models
     
 def make_tree(Tree:str,pathing:str,Output:str,cores:int,genes_to_use:list):
-
-    iqtree_command = "iqtree -T %s -s %s -p %s -B 1000 --alrt 1000 --prefix %s -m MFP" % (str(round(cores)),Output + "/Results/psuedo_alignment.fasta" ,Output + "/Results/IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[0])
+    ## added trim command..
+    iqtree_modelfinder = "iqtree -T %s -s %s -p %s -st AA -mset LG,JTT,Q.BIRD,Q.MAMMAL,Q.INSECT,Q.PLANT,Q.YEAST --prefix %s -m MF" % (str(round(cores)),Output + "/temp/trim_psuedo_alignment.fasta" ,Output + "/temp/trim_IQTree_Partition_file.partitions",Output + "/temp/" + Output.split("/")[-1])
+    iqtree_command_untrimmed = "iqtree -T %s -s %s -p %s -B 1000 --alrt 1000 -st AA -mset LG,JTT,Q.BIRD,Q.MAMMAL,Q.INSECT,Q.PLANT,Q.YEAST --cmin 5 --prefix %s -m MFP" % (str(round(cores)),Output + "/Results/psuedo_alignment.fasta" ,Output + "/Results/IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[-1])
+    iqtree_command = "iqtree -T %s -s %s -p %s -st AA --prefix %s" % (str(round(cores)),Output + "/Results/ReFormatted_psuedo_alignment.fasta" ,Output + "/Results/ReFormatted_IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[-1])
 
     if Tree.upper() == "FAST":
-        FastTree_command = "VeryFastTree -quiet -threads " + str(cores) + " -out "  + Output + "/Results/" + Output.split("/")[-1] + ".nwk " + Output + "/Results/psuedo_alignment.fasta"
+        FastTree_command = "VeryFastTree -quiet -threads " + str(cores) + " -out "  + Output + "/Results/" + Output.split("/")[-1] + ".nwk " + Output + "/Results/trim_psuedo_alignment.fasta"
         iqtree_run = subprocess.Popen(FastTree_command.split(), stdout=subprocess.PIPE)
         output, error = iqtree_run.communicate()
         print("\n\n")
-        write_log("IQTREE can be run on a completed workflow using:\n" + iqtree_command,Output,True)
+        write_log("IQTREE can be run on the trimmed pseudo-alignment using:\n" + iqtree_command_untrimmed,Output,True)
         
     if Tree.upper() == "SENSITIVE":
-        write_log("Running IQTree\n",Output,True)        
+        ## run model finder
+        write_log("Running IQ-Tree ModelFinder using : " + iqtree_modelfinder,Output,True)        
+        iqtree_run = subprocess.Popen(iqtree_modelfinder.split(), stdout=subprocess.PIPE)
+        output, error = iqtree_run.communicate()
+        ## select best models
+        write_log("\nSelecting Best models from " +  Output + "/temp" + Output.split("/")[-1] + ".model.gz\n" ,Output,True) 
+        Extract_Best_Models(pathing,Output)
+        ## run iqtree 
+        write_log("Running IQ-Tree  using : " + iqtree_command,Output,True)        
         iqtree_run = subprocess.Popen(iqtree_command.split(), stdout=subprocess.PIPE)
         output, error = iqtree_run.communicate()
+
         
+    write_log("\nIQTREE can be run on the untrimmed alignment using:\n" + iqtree_command,Output,True)        
         
         
 ### generates the folders for results and intermediates
@@ -4414,7 +4433,7 @@ def cluster_results_table(results_matrix,gene_order,Input,Output):
     else:
         number_of_clusters = silhoutte_scores.index(max(silhoutte_scores)) + 2
         write_log("identified: " + str(number_of_clusters) + " clusters",Output,True)
-        kmeans = KMeans(n_clusters=number_of_clusters,random_state=12345)
+        kmeans = KMeans(n_clusters=number_of_clusters,random_state=10)
         kmeans.fit(species_ordered_scaled)
         clusters = kmeans.labels_
         unique_clusters = set(clusters)
@@ -4475,12 +4494,47 @@ def cluster_results_table(results_matrix,gene_order,Input,Output):
         for prot in named_sets[index]:
             gene_count_dict[prot] = len(cluster_genes)
         """
+        ####################################################################### 
+        #######################################################################
+        #this will pick only the schema with the most hits- is it better to have many hits or fewer higher scoring hits..
+        # Average is bad as 1 hit with very good score will be the best.. Maybe some kind of sum?
+        #######################################################################
+
+        # at2157, at2, at2759
+        scores = [0,0,0]
+        genes_segment = [[],[],[]]
+        score_segment = [[],[],[]]
+        pos_segment = [[],[],[]]
+        for pos,score in enumerate(cluster_scores):
+
+            if cluster_genes[pos].endswith("at2157"):
+                scores[0] += score
+                genes_segment[0].append(cluster_genes[pos])
+                pos_segment[0].append(cluster_genes[pos])
+                score_segment[0].append(cluster_genes[pos])
+            elif cluster_genes[pos].endswith("at2"):
+                scores[1] += score
+                genes_segment[1].append(cluster_genes[pos])
+                pos_segment[1].append(cluster_genes[pos])
+                score_segment[2].append(cluster_genes[pos])
+            else:
+                scores[2] += score
+                genes_segment[2].append(cluster_genes[pos])
+                pos_segment[2].append(cluster_genes[pos])
+                score_segment[2].append(cluster_genes[pos])
+        # select max scoring schema.
+        selected = scores.index(max(scores))
+
+        all_genes = all_genes + genes_segment[selected]
+        resulting_scores = resulting_scores + score_segment[selected]
+        Selected_rows_for_graph = Selected_rows_for_graph + pos_segment[selected]        
         
-    
+        
+        """
         all_genes = all_genes + cluster_genes
         resulting_scores = resulting_scores + cluster_scores
         Selected_rows_for_graph = Selected_rows_for_graph + cluster_pos
-        
+        """
         
         
         
@@ -4550,9 +4604,7 @@ def reduce_alignment(Reduce,pathing,Output, query_lengths):
     new_pseudo_alignment_path = "/".join([Output,"Results","psuedo_alignment_original.fasta"])
     
     selection = random.sample(range(query_lengths), round(query_lengths*(Reduce/100)))
-    
-    
-    time 
+
     
     with open(pseudo_alignment_path) as pseudo_alignment_file:
         with open(reduced_pseudo_alignment_path,"w") as reduced_pseudo_alignment_file:
@@ -4567,6 +4619,204 @@ def reduce_alignment(Reduce,pathing,Output, query_lengths):
                     
     os.rename(pseudo_alignment_path,new_pseudo_alignment_path)
     os.rename(reduced_pseudo_alignment_path, pseudo_alignment_path)
+
+### remove columns with non-phylogenetically relevant material. Such that each column must contain at least 2 charactors from at least two speices 
+#NOTE :: i need to add functionality to ensure that FST can trim and work on alignments with 3 species. Currently tirmming will remove all sites..
+# Input
+#   pathing : path to output file
+#   Output : output file name
+#   query_lengths : gene lengths to crates sample mask
+# Output
+#  Files containing the modified partion file and modified alignment
+
+def trimming_step(Input,Output,pathing,query_lengths):
+    ## files to read/edit
+    pseudo_alignment_path = "/".join([Output,"Results","psuedo_alignment.fasta"])
+    trimmed_alignment_path = "/".join([Output,"temp","trim_psuedo_alignment.fasta"])
+    parition_file_path = "/".join([Output,"Results","IQTree_Partition_file.partitions"])
+    trim_parition_file_path = "/".join([Output,"temp","trim_IQTree_Partition_file.partitions"])
+    names = []
+    gaps = []
+    Unique_AA = {}
+    for index in range(0,query_lengths):
+        Unique_AA[index] = {}
+    with open(pseudo_alignment_path, 'r') as infile:
+        for line in infile:
+            line = line.rstrip()
+            if line.startswith(">"):
+                names.append(line[1:])
+                gaps.append([]) 
+            else:
+
+                for pos,aa in enumerate(line):
+                    ## ambigous sites.. = -, N and X
+                    if aa != "-" and aa != "X":
+                        try:
+                            Unique_AA[pos][aa] = Unique_AA[pos][aa] + 1 
+                        except KeyError:
+                            Unique_AA[pos][aa] = 1
+                            #continue
+                
+    #### informative sites defined as more than 2 states in 2 or more taxa
+    # so three states by definition must be in more than 2 taxa and have more than 2 states
+    # Otherwise I count those with 2 states in and check if the counts are 2 or more.
+    to_keep = []
+    for key,value in Unique_AA.items():
+        keep  = 0
+        for key_2,value_2 in value.items():
+            if 2 <= value_2:
+                keep = keep + 1
+        if 1 < keep:
+            to_keep.append(key)
+            
+            
+    ## write to MSA
+    with open(trimmed_alignment_path,"a") as outfile:
+        with open(pseudo_alignment_path, 'r') as infile:
+            for line in infile:
+                if line.startswith(">"):
+                    outfile.write(line)
+                    new_char = ""
+                else:
+                    for char in to_keep:
+                        new_char = new_char + line[char]
+                    outfile.write(new_char +"\n")                  
+    ### resolve partition_file...
+    partition_file_output = open(trim_parition_file_path,"w")
+    partition_file_output.close()
+    with open(parition_file_path,"r") as partition_file:
+        c = 1
+        AA_part = 1
+        for line in partition_file:
+            re_format = line.replace("\n","").split(" ")
+            start = int(re_format[-1].split("-")[0]) - 1
+            end = int(re_format[-1].split("-")[1]) - 1
+
+            new_end = 0
+            for index in to_keep:
+                if index <= end and start <= index:
+                    new_end += 1
+                if index < start:
+                    continue
+
+            if new_end != 0 and 3 < new_end - 1:
+                new_line = " ".join([re_format[0], "part" + str(AA_part),"=" ,str(c) + "-" + str(c + new_end - 1)])
+                AA_part += 1
+                c = c + new_end
+                with open(trim_parition_file_path,"a") as trim_parition_file:
+                    trim_parition_file.write(new_line + "\n")
+            #sys.exit()
+
+### Extracts an optimal set of models from a model finder run. By ranking the top BIC scores we selected models with the highest score. 
+### Then with these we combine the positions in the alignment to make fewer, longer simmilar paritions. 
+### Current we rank from the top 5- this can be changed and ranking is [5,4,3,2,1] this could also be changed to favour top ranks. 
+# Input
+#   pathing : path to output file
+#   Output : output file name
+# Output
+#   File containing the modified partion file and modified alignment
+
+def Extract_Best_Models(Pathing,Output):
+    
+    Path_to_model_finder_results = "/".join([Output,"temp",Output.split("/")[1] + ".model.gz"])
+    
+    path_to_partition_file = "/".join([Output,"temp","trim_IQTree_Partition_file.partitions"])
+    
+    path_to_new_partition_file = "/".join([Output,"Results","ReFormatted_IQTree_Partition_file.partitions"])
+    
+    alignment_file = "/".join([Output,"temp","trim_psuedo_alignment.fasta"])
+    
+    new_alignment_file = "/".join([Output,"Results","ReFormatted_psuedo_alignment.fasta"])
+
+    
+    models = ["LG","JTT","Q.BIRD","Q.MAMMAL","Q.INSECT","Q.PLANT","Q.YEAST"]
+    ########################## Read models and rank
+    parts = []
+    part_models = {}
+    with gzip.open(Path_to_model_finder_results,"rt") as model_finder_file:
+        part = 1
+        for line in model_finder_file:
+            if line.startswith("part") and line.endswith(":\n"):
+                numeric_part = int(line.replace("part","").replace(":\n",""))
+                part = numeric_part
+                parts.append(part)
+                part_models[part] = {}
+            if line.startswith(" best_model_list_BIC:"):
+                BIC_best = (line.rstrip().split(" ")[2:5])
+                for rank,model in enumerate(BIC_best):
+                    part_models[part][model] = float(len(BIC_best) - rank)
+
+            
+    
+    Unique_models = {}
+    for partition,models in part_models.items():
+        #print(max(models, key=models.get))
+        for model, rank in models.items():
+            if model in Unique_models:
+                Unique_models[model] =  Unique_models[model] + 1
+            else:
+                Unique_models[model] = 0
+            
+        
+    ############# Select order of models
+
+    partition_models = {}
+    while len(part_models) != 0:
+        best_score_model = max(Unique_models, key=Unique_models.get) 
+        del Unique_models[best_score_model]
+        paritions_to_remove = []
+        for parition, models in part_models.items():
+            if best_score_model in models:
+                partition_models[parition] = best_score_model
+                paritions_to_remove.append(parition)
+   
+        for p in paritions_to_remove:
+            del part_models[p]
+
+    current_positions_dict = {}
+    with open(path_to_partition_file) as partition_file:
+        for line in partition_file:
+            part = int(line.split("part")[1].split(" ")[0])
+            coords = line.split("=")[1][1:-1].split("-")
+            current_positions_dict[part] = coords
+    used_models  = set(partition_models.values())
+
+    ######################## Write partition file
+    end = 0
+    pos = 1
+    new_positions = []
+    for model_order in used_models:
+        new_line = model_order + ", part" 
+        coords = []
+        dist = 0
+        for part,model in partition_models.items():
+            if model == model_order:
+                length = int(current_positions_dict[part][1]) - int(current_positions_dict[part][0])
+                new_positions.append([int(current_positions_dict[part][0]),int(current_positions_dict[part][1])])
+                dist = dist + length + 1
+
+        new_line = new_line + str(pos) + " = " + str(end + 1) + "-" + str(end + dist) + "\n" 
+        end = end + dist 
+        pos = pos + 1
+
+
+        with open(path_to_new_partition_file, "a") as new_partition_file:
+                new_partition_file.write(new_line)  
+
+    ################## Re-order and write alignment file
+    with open(alignment_file) as trimmed_fasta:
+        for line in trimmed_fasta:
+            with open(new_alignment_file,"a") as new_trimmed_fasta:
+                if line.startswith(">"):
+                    new_trimmed_fasta.write(line)
+                else:
+                    new_line = ""
+                    for coords in new_positions:
+                        new_line  = new_line + line[coords[0] - 1: coords[1]]
+                    new_trimmed_fasta.write(new_line + "\n")
+    
+
+
 
 
 ###
@@ -4587,7 +4837,8 @@ if __name__ == "__main__":
     import csv
     import itertools
     import random
-    
+    import gzip
+
     ### Extracts flags and converts to readable format...
     running_commands = flags()
     Input = running_commands['f']
@@ -4684,7 +4935,11 @@ if __name__ == "__main__":
     psuedo_alignment_start = time.time()
     missing_genomes, query_lengths = psuedo_alignment(Input,Output,pathing,genes_to_use,cut_off,Tree,cores)  	
     
-    ## possible treeness or something # max numbers I'm not sure...
+    ## Trim data
+    trim = time.time()
+    write_log("Trimming Psuedo-Alignment\n-------------------------",Output,True)   
+    trimming_step(Input,Output,pathing,query_lengths)
+    write_log("Completed Trimming in: "  + str(time.time() - trim) +  "s",Output,True)   
     ## do sliming here...
     if Reduce != 100:
         if Tree != "sensitive":
@@ -4700,7 +4955,7 @@ if __name__ == "__main__":
     
     ### generates the phylogenetic tree using fasttree....   
     #write_log("genes selected and aligned in: " + str(time.time() - psuedo_alignment_start) + "s\n",Output)
-    write_log("\nMaking tree using: " + Tree.upper() + "\n-------------------",Output,True) 
+    write_log("\nMaking tree using: " + Tree.upper() + "\n-----------------------",Output,True) 
     
     tree = time.time()
     make_tree(Tree,pathing,Output,cores,genes_to_use)
