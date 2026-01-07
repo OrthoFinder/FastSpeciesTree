@@ -3981,9 +3981,9 @@ The analysis will be run using 16 processors using VeryFastTree for species tree
         except FileNotFoundError:
             print("IQ-Tree could not be called from console.\nPlease make sure IQ-Tree is installed")        
             sys.exit()     
-            
-          
-            
+    if os.cpu_count() <= args["t"]:
+            print("Error more cores called than available You called %s but only %s available.\n" % (str(args["t"]),str(os.cpu_count())))  
+            sys.exit()
     return args
 
 
@@ -4308,34 +4308,38 @@ def psuedo_alignment(Input:str,Output:str,pathing:str,genes_to_use:list,cutoff:i
     
 def make_tree(Tree:str,pathing:str,Output:str,cores:int,genes_to_use:list):
     ## added trim command..
-    iqtree_modelfinder = "iqtree -T %s -s %s -p %s -st AA -mset LG,JTT,Q.BIRD,Q.MAMMAL,Q.INSECT,Q.PLANT,Q.YEAST --prefix %s -m MF" % (str(round(cores)),Output + "/temp/trim_psuedo_alignment.fasta" ,Output + "/temp/trim_IQTree_Partition_file.partitions",Output + "/temp/" + Output.split("/")[-1])
-    iqtree_command_untrimmed = "iqtree -T %s -s %s -p %s -B 1000 --alrt 1000 -st AA -mset LG,JTT,Q.BIRD,Q.MAMMAL,Q.INSECT,Q.PLANT,Q.YEAST --cmin 5 --prefix %s -m MFP" % (str(round(cores)),Output + "/Results/psuedo_alignment.fasta" ,Output + "/Results/IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[-1])
-    iqtree_command = "iqtree -T %s -s %s -p %s -st AA --prefix %s" % (str(round(cores)),Output + "/Results/ReFormatted_psuedo_alignment.fasta" ,Output + "/Results/ReFormatted_IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[-1])
+    iqtree_modelfinder = "iqtree -T %s -s %s -p %s -st AA -mset LG,JTT,Q.BIRD,Q.MAMMAL,Q.INSECT,Q.PLANT,Q.YEAST --prefix %s -m TESTONLY" % (str(round(cores)),Output + "/Results/trim_psuedo_alignment.fasta" ,Output + "/temp/trim_IQTree_Partition_file.partitions",Output + "/temp/" + Output.split("/")[-1])
+    iqtree_command_untrimmed = "iqtree -T %s -s %s -p %s -B 1000 --alrt 1000 -st AA -mset LG,JTT,Q.BIRD,Q.MAMMAL,Q.INSECT,Q.PLANT,Q.YEAST -mrate I,G,I+G --prefix %s -m MFP" % (str(round(cores)),Output + "/Results/psuedo_alignment.fasta" ,Output + "/Results/IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[-1])
+    iqtree_command_trimmed = "iqtree -T %s -s %s -p %s -B 1000 --alrt 1000 -st AA -mset LG,JTT,Q.BIRD,Q.MAMMAL,Q.INSECT,Q.PLANT,Q.YEAST -mrate I,G,I+G --prefix %s -m MFP" % (str(round(cores)),Output + "/Results/trim_psuedo_alignment.fasta" ,Output + "/Results/trim_IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[-1])
+
+    #iqtree_command = "iqtree -T %s -s %s -p %s -st AA  -B 1000 --alrt 1000 --prefix %s" % (str(round(cores)),Output + "/Results/ReFormatted_psuedo_alignment.fasta" ,Output + "/Results/ReFormatted_IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[-1])
+    #iqtree_command = "iqtree -T %s -s %s -p %s -st AA  -B 1000 --alrt 1000 --prefix %s -te %s" % (str(round(cores)),Output + "/Results/ReFormatted_psuedo_alignment.fasta" ,Output + "/Results/ReFormatted_IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[-1], Output + "/temp/" + Output.split("/")[-1] + ".treefile")
+
 
     if Tree.upper() == "FAST":
         FastTree_command = "VeryFastTree -quiet -threads " + str(cores) + " -out "  + Output + "/Results/" + Output.split("/")[-1] + ".nwk " + Output + "/Results/trim_psuedo_alignment.fasta"
         iqtree_run = subprocess.Popen(FastTree_command.split(), stdout=subprocess.PIPE)
         output, error = iqtree_run.communicate()
         print("\n\n")
-        write_log("IQTREE can be run on the trimmed pseudo-alignment using:\n" + iqtree_command_untrimmed,Output,True)
+        write_log("IQTREE can be run on the trimmed pseudo-alignment using:\n" + iqtree_command_trimmed,Output,True)
         
     if Tree.upper() == "SENSITIVE":
         ## run model finder
-        write_log("Running IQ-Tree ModelFinder using : " + iqtree_modelfinder,Output,True)        
-        iqtree_run = subprocess.Popen(iqtree_modelfinder.split(), stdout=subprocess.PIPE)
-        output, error = iqtree_run.communicate()
+        #write_log("Running IQ-Tree ModelFinder using : " + iqtree_modelfinder,Output,True)        
+        #iqtree_run = subprocess.Popen(iqtree_modelfinder.split(), stdout=subprocess.PIPE)
+        #output, error = iqtree_run.communicate()
         ## select best models
-        write_log("\nSelecting Best models from " +  Output + "/temp" + Output.split("/")[-1] + ".model.gz\n" ,Output,True) 
-        Extract_Best_Models(pathing,Output)
+        #write_log("\nSelecting Best models from " +  Output + "/temp/" + Output.split("/")[-1] + ".model.gz\n" ,Output,True) 
+        #Extract_Best_Models(pathing,Output)
         ## run iqtree 
-        write_log("Running IQ-Tree  using : " + iqtree_command,Output,True)        
-        iqtree_run = subprocess.Popen(iqtree_command.split(), stdout=subprocess.PIPE)
+        write_log("Running IQ-Tree  using : " + iqtree_command_trimmed,Output,True)        
+        iqtree_run = subprocess.Popen(iqtree_command_trimmed.split(), stdout=subprocess.PIPE)
         output, error = iqtree_run.communicate()
 
         
-    write_log("\nIQTREE can be run on the untrimmed alignment using:\n" + iqtree_command,Output,True)        
+    write_log("\nIQTREE can be run on the untrimmed alignment using:\n" + iqtree_command_untrimmed,Output,True)        
         
-        
+            
 ### generates the folders for results and intermediates
 # Input: 
 #   output: output folder       
@@ -4632,9 +4636,9 @@ def reduce_alignment(Reduce,pathing,Output, query_lengths):
 def trimming_step(Input,Output,pathing,query_lengths):
     ## files to read/edit
     pseudo_alignment_path = "/".join([Output,"Results","psuedo_alignment.fasta"])
-    trimmed_alignment_path = "/".join([Output,"temp","trim_psuedo_alignment.fasta"])
+    trimmed_alignment_path = "/".join([Output,"Results","trim_psuedo_alignment.fasta"])
     parition_file_path = "/".join([Output,"Results","IQTree_Partition_file.partitions"])
-    trim_parition_file_path = "/".join([Output,"temp","trim_IQTree_Partition_file.partitions"])
+    trim_parition_file_path = "/".join([Output,"Results","trim_IQTree_Partition_file.partitions"])
     names = []
     gaps = []
     Unique_AA = {}
@@ -4718,7 +4722,7 @@ def trimming_step(Input,Output,pathing,query_lengths):
 
 def Extract_Best_Models(Pathing,Output):
     
-    Path_to_model_finder_results = "/".join([Output,"temp",Output.split("/")[1] + ".model.gz"])
+    Path_to_model_finder_results = "/".join([Output,"temp",Output.split("/")[-1] + ".model.gz"])
     
     path_to_partition_file = "/".join([Output,"temp","trim_IQTree_Partition_file.partitions"])
     
@@ -4733,6 +4737,7 @@ def Extract_Best_Models(Pathing,Output):
     ########################## Read models and rank
     parts = []
     part_models = {}
+
     with gzip.open(Path_to_model_finder_results,"rt") as model_finder_file:
         part = 1
         for line in model_finder_file:
@@ -4742,23 +4747,23 @@ def Extract_Best_Models(Pathing,Output):
                 parts.append(part)
                 part_models[part] = {}
             if line.startswith(" best_model_list_BIC:"):
-                BIC_best = (line.rstrip().split(" ")[2:5])
+                BIC_best = (line.rstrip().split(" ")[2:5])         
                 for rank,model in enumerate(BIC_best):
-                    part_models[part][model] = float(len(BIC_best) - rank)
+                    model_removed_R = "+".join([i for i in model.split("+") if "R" not in i])
+                    part_models[part][model_removed_R] = float(len(BIC_best) - rank)
 
-            
-    
+
+
     Unique_models = {}
     for partition,models in part_models.items():
-        #print(max(models, key=models.get))
         for model, rank in models.items():
             if model in Unique_models:
                 Unique_models[model] =  Unique_models[model] + 1
             else:
                 Unique_models[model] = 0
-            
+             
         
-    ############# Select order of models
+    ######################## Select order of models
 
     partition_models = {}
     while len(part_models) != 0:
