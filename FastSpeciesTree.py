@@ -4321,7 +4321,7 @@ def make_tree(Tree:str,pathing:str,Output:str,cores:int,genes_to_use:list):
         iqtree_run = subprocess.Popen(FastTree_command.split(), stdout=subprocess.PIPE)
         output, error = iqtree_run.communicate()
         print("\n\n")
-        write_log("IQTREE can be run on the trimmed pseudo-alignment using:\n" + iqtree_command_trimmed,Output,True)
+        write_log("IQTREE can be run on the untrimmed pseudo-alignment using:\n" + iqtree_command_untrimmed,Output,True)
         
     if Tree.upper() == "SENSITIVE":
         ## run model finder
@@ -4332,12 +4332,12 @@ def make_tree(Tree:str,pathing:str,Output:str,cores:int,genes_to_use:list):
         #write_log("\nSelecting Best models from " +  Output + "/temp/" + Output.split("/")[-1] + ".model.gz\n" ,Output,True) 
         #Extract_Best_Models(pathing,Output)
         ## run iqtree 
-        write_log("Running IQ-Tree  using : " + iqtree_command_trimmed,Output,True)        
+        write_log("Running IQ-Tree  using : " + iqtree_command_untrimmed,Output,True)        
         iqtree_run = subprocess.Popen(iqtree_command_trimmed.split(), stdout=subprocess.PIPE)
         output, error = iqtree_run.communicate()
 
         
-    write_log("\nIQTREE can be run on the untrimmed alignment using:\n" + iqtree_command_untrimmed,Output,True)        
+    write_log("\nIQTREE can be run on the untrimmed alignment using:\n" + iqtree_command_trimmed,Output,True)        
         
             
 ### generates the folders for results and intermediates
