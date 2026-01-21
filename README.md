@@ -57,9 +57,9 @@ This is a simple example running FastSpeciesTree on the Example Data containing 
 ```
 python3 FastSpeciesTree.py -f Example_Data/Proteomes -o Example_Data/Results
 ```
-Default number of cores (4) and the tree method (VeryFastTree) are used. 
+Default number of cores (2) and the tree method (VeryFastTree) are used. 
 
-To run using the sensitive model call IQTree as the tree builder. 
+To run using the sensitive model call IQTree as the tree builder and with more cores (16).  
 ```
 python3 FastSpeciesTree.py -f Example_Data/Proteomes -o Example_Data/Results_IQTREE -t 16 -s sensitive
 ```
