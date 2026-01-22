@@ -4828,7 +4828,7 @@ def Extract_Best_Models(Pathing,Output):
 ###  Main Function
 ### 
 if __name__ == "__main__":           
-    header = "\nFast Species Tree \nLink:\nV 1.0 (2025)\nAuthor: Jonathan Holmes\nPlease cite:Coming soon\n"
+    header = "\nFast Species Tree \nLink:\nV 1.0 (2025)\nAuthor: Jonathan Holmes\nPlease cite: https://www.biorxiv.org/content/10.64898/2026.01.20.700630v1\n"
     print(header)
     
     ##### library imports
@@ -4974,5 +4974,6 @@ if __name__ == "__main__":
       
 
     sys.exit()
+
 
 
