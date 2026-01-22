@@ -1,10 +1,10 @@
-### Warning! Fast Species Tree is an ongoing project with potential changes to workflow.
+### Fast Species Tree is an ongoing project with potential changes to workflow.
 
 FastSpeciesTree
 ======
 FastSpeciesTree Inference using concatinated single copy orthologs. Alignments are generated using Psuedo-Alignments derived from overlaping BLAST hits to infer sequence alignemnts without using alignment tools - allowing for huge scalability gains over conventional concatinated sequence trees.
 
-Reference: Pre-print coming soon!
+Citation: https://www.biorxiv.org/content/10.64898/2026.01.20.700630v1
 
 ### Dependecies and Installation
 ------
