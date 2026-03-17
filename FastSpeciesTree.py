@@ -3910,19 +3910,21 @@ def Cross_Over_Pairs():
 ## Takes user inputs via argparse and sets defaults.
 ## returns a set of args to control runs.
 def flags():
-    parser = argparse.ArgumentParser(description="""Fast Species Tree \nLink:\nV 1.0 (2025)\n
+    parser = argparse.ArgumentParser(description="""Fast Species Tree \nLink:\nV 1.1 (2025)\n
 Example Run:
                  
-Python3 Documents/FastSpeciesTree/FastSpecies_version_1.py -f Documents/Proteomes -o Documents/Output_Results/ -t 16 -s fast
+Python3 Documents/FastSpeciesTree/FastSpecies_version_1.py -f Documents/Proteomes -o Documents/Output_Results/ -t 16 -s fast -m consensus
 
 The input data is a set of proteomes from inside the Proteomes directory with the output in Output_Results. 
-The analysis will be run using 16 processors using VeryFastTree for species tree inference.
+The analysis will be run using 16 processors using VeryFastTree for gene tree inference and ASTRAL-IV for species tree inference.
                                      """,formatter_class=argparse.RawTextHelpFormatter)
     
     parser.add_argument("-f", help="path..to..files/proteome_folder : Input path to directory containing proteomes files in fasta format")
     parser.add_argument("-o", help="path..to..dir/Output_Folder_name : Output folder path.")
     parser.add_argument("-t", help="Number of cores -- Default = 4.",type=int, default=4)
-    parser.add_argument("-s", help="Tree building method: fast = veryfasttree,sensitive = IQ-Tree",type=str,default="Fast")
+    parser.add_argument("-s", help="Tree building method: fast = veryfasttree,iqtree = IQ-Tree",type=str,default="fasta")
+    parser.add_argument("-m", help="Species tree inference method: Consensus = Astral, concatination = MSA-Conatination",type=str,default="concatination")
+   
     #parser.add_argument("-R", help="Randomly fraction MSA alignment (example: -R 10 will select at random 10 percent of all MSA columns)",type=int, default=100)
     
     
@@ -3946,7 +3948,7 @@ The analysis will be run using 16 processors using VeryFastTree for species tree
     if os.path.exists(args["o"] + "/") == True:
         print("\nOutput folder already exists please specify a new folder.")
         sys.exit()  
-    if args["s"].upper() != "FAST" and args["s"].upper() != "SENSITIVE":
+    if args["s"].upper() != "FAST" and args["s"].upper() != "IQTREE":
         print("\nNo tree mode selected defaulting to use -s FAST. To run using IQ-TREE use the flag : -s sensitive\n")
         sys.exit()
     """
@@ -3973,7 +3975,7 @@ The analysis will be run using 16 processors using VeryFastTree for species tree
             print("VeryFastTree could not be called from console.\nPlease make sure VeryFastTree is installed")        
             sys.exit()
     ##IQTREE test
-    if args["s"].upper() == "SENSITIVE": 
+    if args["s"].upper() == "IQTREE": 
         try:
             iqtree_test_command = "iqtree"
             iqtree_test = subprocess.Popen(iqtree_test_command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)    
@@ -3984,6 +3986,15 @@ The analysis will be run using 16 processors using VeryFastTree for species tree
     if os.cpu_count() <= args["t"]:
             print("Error more cores called than available You called %s but only %s available.\n" % (str(args["t"]),str(os.cpu_count())))  
             sys.exit()
+            
+        
+    if args["m"].upper() == "CONSENSUS":
+        astral_test_command = "astral"
+        astral_test = subprocess.Popen(astral_test_command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)    
+        output, error = astral_test.communicate()
+        if str(error).startswith("b'Accurate Species TRee ALgorithm IV") == False:
+            print("ASTRAL-IV could not be called from console.\nPlease make sure IQ-Tree is installed") 
+            print(str(error))
     return args
 
 
@@ -4292,6 +4303,13 @@ def psuedo_alignment(Input:str,Output:str,pathing:str,genes_to_use:list,cutoff:i
 
 
 
+
+def make_gene_trees(tree_command:str):  
+    fastree_run = subprocess.Popen(tree_command.split(), stdout=subprocess.DEVNULL,stderr = subprocess.STDOUT)
+    output, error = fastree_run.communicate()
+    #fastree_run = subprocess.Popen(tree_command.split())
+    #output, error = fastree_run.communicate()  
+    
     
 ### generates the phylogenetic tree from the pseudo-alignment based on use selection
 # VeryFastTree directly from the the trimmed aligment
@@ -4306,48 +4324,91 @@ def psuedo_alignment(Input:str,Output:str,pathing:str,genes_to_use:list,cutoff:i
     # none
 # Runs function :: Extract_Best_Models
     
-def make_tree(Tree:str,pathing:str,Output:str,cores:int,genes_to_use:list):
+def make_tree(Tree:str,pathing:str,Output:str,cores:int,genes_to_use:list,method:str):
     ## added trim command..
-    iqtree_modelfinder = "iqtree -T %s -s %s -p %s -st AA -mset LG,JTT,Q.BIRD,Q.MAMMAL,Q.INSECT,Q.PLANT,Q.YEAST --prefix %s -m TESTONLY" % (str(round(cores)),Output + "/Results/trim_psuedo_alignment.fasta" ,Output + "/temp/trim_IQTree_Partition_file.partitions",Output + "/temp/" + Output.split("/")[-1])
-    iqtree_command_untrimmed = "iqtree -T %s -s %s -p %s -B 1000 --alrt 1000 -st AA -mset LG,JTT,Q.BIRD,Q.MAMMAL,Q.INSECT,Q.PLANT,Q.YEAST -mrate I,G,I+G --prefix %s -m MFP" % (str(round(cores)),Output + "/Results/psuedo_alignment.fasta" ,Output + "/Results/IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[-1])
-    iqtree_command_trimmed = "iqtree -T %s -s %s -p %s -B 1000 --alrt 1000 -st AA -mset LG,JTT,Q.BIRD,Q.MAMMAL,Q.INSECT,Q.PLANT,Q.YEAST -mrate I,G,I+G --prefix %s -m MFP" % (str(round(cores)),Output + "/Results/trim_psuedo_alignment.fasta" ,Output + "/Results/trim_IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[-1])
-
-    #iqtree_command = "iqtree -T %s -s %s -p %s -st AA  -B 1000 --alrt 1000 --prefix %s" % (str(round(cores)),Output + "/Results/ReFormatted_psuedo_alignment.fasta" ,Output + "/Results/ReFormatted_IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[-1])
-    #iqtree_command = "iqtree -T %s -s %s -p %s -st AA  -B 1000 --alrt 1000 --prefix %s -te %s" % (str(round(cores)),Output + "/Results/ReFormatted_psuedo_alignment.fasta" ,Output + "/Results/ReFormatted_IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[-1], Output + "/temp/" + Output.split("/")[-1] + ".treefile")
-
-
-    if Tree.upper() == "FAST":
-        FastTree_command = "VeryFastTree -quiet -threads " + str(cores) + " -out "  + Output + "/Results/" + Output.split("/")[-1] + ".nwk " + Output + "/Results/trim_psuedo_alignment.fasta"
-        iqtree_run = subprocess.Popen(FastTree_command.split(), stdout=subprocess.PIPE)
-        output, error = iqtree_run.communicate()
-        print("\n\n")
-        write_log("IQTREE can be run on the untrimmed pseudo-alignment using:\n" + iqtree_command_untrimmed,Output,True)
+    if method.upper() == "CONSENSUS":
+        print("running using consensus method")
         
-    if Tree.upper() == "SENSITIVE":
-        ## run model finder
-        #write_log("Running IQ-Tree ModelFinder using : " + iqtree_modelfinder,Output,True)        
-        #iqtree_run = subprocess.Popen(iqtree_modelfinder.split(), stdout=subprocess.PIPE)
-        #output, error = iqtree_run.communicate()
-        ## select best models
-        #write_log("\nSelecting Best models from " +  Output + "/temp/" + Output.split("/")[-1] + ".model.gz\n" ,Output,True) 
-        #Extract_Best_Models(pathing,Output)
-        ## run iqtree 
-        write_log("Running IQ-Tree  using : " + iqtree_command_untrimmed,Output,True)        
-        iqtree_run = subprocess.Popen(iqtree_command_trimmed.split(), stdout=subprocess.PIPE)
-        output, error = iqtree_run.communicate()
-
+        ### create trees file
+        ## loop over gene trees and create tree...
+        gene_tree_commands = []
+        for gene in genes_to_use:
+            input_alignemnt_path = os.path.join(pathing,Output,"gene_alignments",gene + ".fasta")
+            output_tree_path = os.path.join(pathing,Output,"gene_trees", gene)
+            iqtree_command = "iqtree -T %s -s %s -B 1000 --alrt 1000 -st AA -mset LG,JTT,Q.BIRD,Q.MAMMAL,Q.INSECT,Q.PLANT,Q.YEAST -mrate I,G,I+G --prefix %s -m MFP -quiet" % ("1",input_alignemnt_path,output_tree_path)
+            fasttree_command = "VeryFastTree -quiet -nopr -threads 1 -out %s %s" % (output_tree_path + ".nwk",input_alignemnt_path)
+            
+            if Tree.upper() == "FAST":
+                gene_tree_commands.append([fasttree_command])
+            else:
+                gene_tree_commands.append([iqtree_command])                
         
-    write_log("\nIQTREE can be run on the untrimmed alignment using:\n" + iqtree_command_trimmed,Output,True)        
+        with Pool(processes=cores) as pool:
+            sub_process_matrix = pool.starmap_async(make_gene_trees, gene_tree_commands)
+            sub_process_matrix.wait()
+        #print(gene_tree_commands)
         
+        ######### concatinate - keeping a count of how many must be more than something????
+        
+        concatinated_tree_data = os.path.join(pathing,Output,"Results","ConcatinatedGeneTrees.txt")
+        
+        for file in os.listdir(os.path.join(pathing,Output,"gene_trees")):
+            if file.endswith(".treefile") or file.endswith(".nwk"):
+                tree = open(os.path.join(pathing,Output,"gene_trees",file)).read()
+                if "," in tree: # makes sure theres at least 2 genomes present..
+                    with open(concatinated_tree_data,"a") as concatinated_file:
+                        concatinated_file.write(tree)
+        #### run astral command
+        Astral_Command = "astral -i %s -o %s" % (Output+"/Results/ConcatinatedGeneTrees.txt",Output + "/Results/" + Output.split("/")[-1] + ".nwk")
+        write_log("Running ASTRAL-IV  using : " + Astral_Command,Output,True)        
+        astral_run = subprocess.Popen(Astral_Command.split(), stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+        output, error = astral_run.communicate()
+        
+    
+    
+    
+    else:
+        iqtree_modelfinder = "iqtree -T %s -s %s -p %s -st AA -mset LG,JTT,Q.BIRD,Q.MAMMAL,Q.INSECT,Q.PLANT,Q.YEAST --prefix %s -m TESTONLY" % (str(round(cores)),Output + "/Results/trim_psuedo_alignment.fasta" ,Output + "/temp/trim_IQTree_Partition_file.partitions",Output + "/temp/" + Output.split("/")[-1])
+        iqtree_command_untrimmed = "iqtree -T %s -s %s -p %s -B 1000 --alrt 1000 -st AA -mset LG,JTT,Q.BIRD,Q.MAMMAL,Q.INSECT,Q.PLANT,Q.YEAST -mrate I,G,I+G --prefix %s -m MFP -quiet" % (str(round(cores)),Output + "/Results/psuedo_alignment.fasta" ,Output + "/Results/IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[-1])
+        iqtree_command_trimmed = "iqtree -T %s -s %s -p %s -B 1000 --alrt 1000 -st AA -mset LG,JTT,Q.BIRD,Q.MAMMAL,Q.INSECT,Q.PLANT,Q.YEAST -mrate I,G,I+G --prefix %s -m MFP -quiet" % (str(round(cores)),Output + "/Results/trim_psuedo_alignment.fasta" ,Output + "/Results/trim_IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[-1])
+    
+        #iqtree_command = "iqtree -T %s -s %s -p %s -st AA  -B 1000 --alrt 1000 --prefix %s" % (str(round(cores)),Output + "/Results/ReFormatted_psuedo_alignment.fasta" ,Output + "/Results/ReFormatted_IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[-1])
+        #iqtree_command = "iqtree -T %s -s %s -p %s -st AA  -B 1000 --alrt 1000 --prefix %s -te %s" % (str(round(cores)),Output + "/Results/ReFormatted_psuedo_alignment.fasta" ,Output + "/Results/ReFormatted_IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[-1], Output + "/temp/" + Output.split("/")[-1] + ".treefile")
+    
+    
+        if Tree.upper() == "FAST":
+            FastTree_command = "VeryFastTree -quiet -threads " + str(cores) + " -out "  + Output + "/Results/" + Output.split("/")[-1] + ".nwk " + Output + "/Results/trim_psuedo_alignment.fasta"
+            fastree_run = subprocess.Popen(FastTree_command.split(), stdout=subprocess.PIPE)
+            output, error = fastree_run.communicate()
+            print("\n\n")
+            write_log("IQTREE can be run on the untrimmed pseudo-alignment using:\n" + iqtree_command_untrimmed,Output,True)
+            
+        if Tree.upper() == "SENSITIVE":
+            ## run model finder
+            #write_log("Running IQ-Tree ModelFinder using : " + iqtree_modelfinder,Output,True)        
+            #iqtree_run = subprocess.Popen(iqtree_modelfinder.split(), stdout=subprocess.PIPE)
+            #output, error = iqtree_run.communicate()
+            ## select best models
+            #write_log("\nSelecting Best models from " +  Output + "/temp/" + Output.split("/")[-1] + ".model.gz\n" ,Output,True) 
+            #Extract_Best_Models(pathing,Output)
+            ## run iqtree 
+            write_log("Running IQ-Tree  using : " + iqtree_command_untrimmed,Output,True)        
+            iqtree_run = subprocess.Popen(iqtree_command_trimmed.split(), stdout=subprocess.PIPE)
+            output, error = iqtree_run.communicate()
+    
+            
+        write_log("\nIQTREE can be run on the untrimmed alignment using:\n" + iqtree_command_trimmed,Output,True)        
+            
             
 ### generates the folders for results and intermediates
 # Input: 
 #   output: output folder       
-def make_output_folders(output:str):
+def make_output_folders(output:str,method:str):
     for_blast_results = output + "/Blast_Results"
     for_alignment_and_tree = output + "/Results"
     temp = output + "/temp"   
     alignments = output + "/gene_alignments"
+    gene_trees = output + "/gene_trees"
     os.mkdir(output)
     os.mkdir(for_blast_results)
     os.mkdir(for_alignment_and_tree)
@@ -4355,8 +4416,9 @@ def make_output_folders(output:str):
     os.mkdir(alignments)    
     log_file= open(output + "/log_file.txt","w")
     log_file.close()
-    
-  
+    if method.upper() == "CONSENSUS":
+        os.mkdir(gene_trees)
+     
 ### writes commands/outputs to log file and terminal
 # Input: 
 #   output: output folder    
@@ -4853,6 +4915,7 @@ if __name__ == "__main__":
     cores = running_commands['t']
     pathing = running_commands["Path"]
     Tree = running_commands["s"]
+    Method = running_commands["m"]
     Reduce = 100#running_commands["R"]
     
 
@@ -4877,7 +4940,7 @@ if __name__ == "__main__":
     start = time.time()
 
     ### Generates output folders..
-    make_output_folders(Output)
+    make_output_folders(Output,Method)
     
     ### Outputs running information
     start = time.time()
@@ -4946,6 +5009,7 @@ if __name__ == "__main__":
     trimming_step(Input,Output,pathing,query_lengths)
     write_log("Completed Trimming in: "  + str(time.time() - trim) +  "s",Output,True)   
     ## do sliming here...
+    """
     if Reduce != 100:
         if Tree != "sensitive":
             reduce_time = time.time()
@@ -4954,16 +5018,17 @@ if __name__ == "__main__":
             write_log("\nMSA reduced in "+ str(time.time() - reduce_time)+"s",Output,True)        
         else:
             print("Cannot reduce columns with IQTree active - skipping step")
+            
+    """        
     write_log("Individual gene alignments are in: " + Output + "/gene_alignments",Output,True)  
     write_log("The concatinated alignemnt is found in: " + Output + "/Results/psuedo_alignment",Output,True)    
     write_log("Alignment complete in: "+ str(time.time() - Psuedo_Alignment)+"s",Output,True) 
     
     ### generates the phylogenetic tree using fasttree....   
     #write_log("genes selected and aligned in: " + str(time.time() - psuedo_alignment_start) + "s\n",Output)
-    write_log("\nMaking tree using: " + Tree.upper() + "\n-----------------------",Output,True) 
-    
+    write_log("\nMaking tree using: " + Method+ "\n-----------------------",Output,True) 
     tree = time.time()
-    make_tree(Tree,pathing,Output,cores,genes_to_use)
+    make_tree(Tree,pathing,Output,cores,genes_to_use,Method)
     write_log("Tree complete in: " + str(time.time() - tree) + "s",Output,True)  
     
     
