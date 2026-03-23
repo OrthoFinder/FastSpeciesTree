@@ -4022,16 +4022,13 @@ def makedb_command(make_command:str,Output:str):
 # Results in a set of diamond databases for each user proteome.
 def make_diamond_db(Input:str,cores:int,Output:str,Pathing:str):
     jobs = []
+    print(Input)
     for file in os.listdir(Input):  
         if file.startswith(".") == False:
-            if file.endswith(".dmnd") == False:
-                if Input[-1] == "/":
-                    genome_path = Input + file
-                else:
-                    genome_path = Input + "/" + file   
-        #command = "diamond makedb --threads 1 --quiet --ignore-warnings --in " + genome_path + " -d " + genome_path    # 8 = placeholders
-        command = "diamond makedb --threads 1 --in " + genome_path + " -d " + genome_path    # 8 = placeholders
-        jobs.append([command,Output])       
+            if file.endswith(".dmnd") == False:	
+                    genome_path = os.path.join(Input,file)  
+                    command = "diamond makedb --threads 1 --in " + genome_path + " -d " + genome_path    # 8 = placeholders
+                    jobs.append([command,Output])       
     
     with Pool(processes=cores) as pool:
         sub_process_matrix = pool.starmap_async(makedb_command, jobs)
@@ -4370,7 +4367,7 @@ def make_tree(Tree:str,pathing:str,Output:str,cores:int,genes_to_use:list,method
     else:
         iqtree_modelfinder = "iqtree -T %s -s %s -p %s -st AA -mset LG,JTT,Q.BIRD,Q.MAMMAL,Q.INSECT,Q.PLANT,Q.YEAST --prefix %s -m TESTONLY" % (str(round(cores)),Output + "/Results/trim_psuedo_alignment.fasta" ,Output + "/temp/trim_IQTree_Partition_file.partitions",Output + "/temp/" + Output.split("/")[-1])
         iqtree_command_untrimmed = "iqtree -T %s -s %s -p %s -B 1000 --alrt 1000 -st AA -mset LG,JTT,Q.BIRD,Q.MAMMAL,Q.INSECT,Q.PLANT,Q.YEAST -mrate I,G,I+G --prefix %s -m MFP -quiet" % (str(round(cores)),Output + "/Results/psuedo_alignment.fasta" ,Output + "/Results/IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[-1])
-        iqtree_command_trimmed = "iqtree -T %s -s %s -p %s -B 1000 --alrt 1000 -st AA -mset LG,JTT,Q.BIRD,Q.MAMMAL,Q.INSECT,Q.PLANT,Q.YEAST -mrate I,G,I+G --prefix %s -m MFP -quiet" % (str(round(cores)),Output + "/Results/trim_psuedo_alignment.fasta" ,Output + "/Results/trim_IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[-1])
+        iqtree_command_trimmed = "iqtree -T %s -s %s -p %s -B 1000 --alrt 1000 -st AA -mset LG,JTT,Q.BIRD,Q.MAMMAL,Q.INSECT,Q.PLANT,Q.YEAST -mrate I,G,I+G --prefix %s -m MFP" % (str(round(cores)),Output + "/Results/trim_psuedo_alignment.fasta" ,Output + "/Results/trim_IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[-1])
     
         #iqtree_command = "iqtree -T %s -s %s -p %s -st AA  -B 1000 --alrt 1000 --prefix %s" % (str(round(cores)),Output + "/Results/ReFormatted_psuedo_alignment.fasta" ,Output + "/Results/ReFormatted_IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[-1])
         #iqtree_command = "iqtree -T %s -s %s -p %s -st AA  -B 1000 --alrt 1000 --prefix %s -te %s" % (str(round(cores)),Output + "/Results/ReFormatted_psuedo_alignment.fasta" ,Output + "/Results/ReFormatted_IQTree_Partition_file.partitions",Output + "/Results/" + Output.split("/")[-1], Output + "/temp/" + Output.split("/")[-1] + ".treefile")
@@ -4383,7 +4380,7 @@ def make_tree(Tree:str,pathing:str,Output:str,cores:int,genes_to_use:list,method
             print("\n\n")
             write_log("IQTREE can be run on the untrimmed pseudo-alignment using:\n" + iqtree_command_untrimmed,Output,True)
             
-        if Tree.upper() == "SENSITIVE":
+        if Tree.upper() == "IQTREE":
             ## run model finder
             #write_log("Running IQ-Tree ModelFinder using : " + iqtree_modelfinder,Output,True)        
             #iqtree_run = subprocess.Popen(iqtree_modelfinder.split(), stdout=subprocess.PIPE)
@@ -4392,7 +4389,7 @@ def make_tree(Tree:str,pathing:str,Output:str,cores:int,genes_to_use:list,method
             #write_log("\nSelecting Best models from " +  Output + "/temp/" + Output.split("/")[-1] + ".model.gz\n" ,Output,True) 
             #Extract_Best_Models(pathing,Output)
             ## run iqtree 
-            write_log("Running IQ-Tree  using : " + iqtree_command_untrimmed,Output,True)        
+            write_log("Running IQ-Tree  using : " + iqtree_command_untrimmed,Output,True)     
             iqtree_run = subprocess.Popen(iqtree_command_trimmed.split(), stdout=subprocess.PIPE)
             output, error = iqtree_run.communicate()
     
