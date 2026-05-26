@@ -6,15 +6,16 @@ FastSpeciesTree Inference using concatinated single copy orthologs. Alignments a
 
 Citation: https://www.biorxiv.org/content/10.64898/2026.01.20.700630v1
 
-### Dependecies and Installation
+### Dependencies and Installation
 ------
 FastSpeciesTree is built using python. It was tested using ```python<=3.10``` on Linux, WSL, and Mac.
-### Dependecies
+### Dependencies
 1. diamond
 2. VeryFastTree
 3. Numpy
 4. scikit-learn
 5. iqtree (optional -s sensitive)
+6. Astral-Pro IV (Aster). 
 
 These can be installed locally or through conda using the .yml file. Conda can be installed from [link](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html)
 
@@ -55,7 +56,7 @@ FastSpeciesTree is run from a single python script, aiming to be as simple as po
 ```-m``` : Species tree inference mode: consensus = Astral, concatination = MSA-Conatination
 
 #### Example
-This is a simple example running FastSpeciesTree on the Example Data containing proteomes on the path : Example_Data/Proteomes. The output files are written to Example_Data/Results.
+This is a simple example running FastSpeciesTree on the Example Data containing proteomes on the path : Example_Data/Proteomes. The output files are written to Example_Data/Results. On the example data with a default of 4 cores you should expect most modes to run in 5 seconds for most runs.  
 ```
 python3 FastSpeciesTree.py -f Example_Data/Proteomes -o Example_Data/Results -m concatination
 ```
