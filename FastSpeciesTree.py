@@ -7,10 +7,13 @@ FastSpeciesTree
 
 A rapid automated method to infer approximate species trees. 
 
-
-
+eukaryotes odb10
+prokaryotes odb10
+archeae odb10
 
 """
+import subprocess
+
 ## All BUSCO genes in fasta format
 ## generated using hmmemit -c on odb12 BUSCO hmm profiles - to generated a majority rule consensus sequence.
 def blast_queries():
@@ -3923,14 +3926,14 @@ The analysis will be run using 16 processors using VeryFastTree for gene tree in
     parser.add_argument("-o", help="path..to..dir/Output_Folder_name : Output folder path.")
     parser.add_argument("-t", help="Number of cores -- Default = 4.",type=int, default=4)
     parser.add_argument("-s", help="Tree building method: fast = veryfasttree,iqtree = IQ-Tree",type=str,default="fasta")
-    parser.add_argument("-m", help="Species tree inference method: Consensus = Astral, concatination = MSA-Conatination",type=str,default="concatination")
+    parser.add_argument("-m", help="Species tree inference method: consensus = Astral, concatination = MSA-Conatination",type=str,default="concatination")
    
     #parser.add_argument("-R", help="Randomly fraction MSA alignment (example: -R 10 will select at random 10 percent of all MSA columns)",type=int, default=100)
     
     
     args = vars(parser.parse_args())    
 
-    path = "/".join(os.getcwd().split("/") + sys.argv[0].split("/")[:-1])
+    path = os.getcwd()
     
     args["Path"] = path
     
@@ -3942,10 +3945,10 @@ The analysis will be run using 16 processors using VeryFastTree for gene tree in
         else:
             print("No output directory path specified. Please use -o followed by a path to a dictory of Proteomes\nFor help use the -h flag")  
             sys.exit()            
-    if os.path.exists(args["f"] + "/") == False:
+    if os.path.exists(os.path.join(args["f"])) == False:
         print("\nInput path could not be found please check the input path is correct.")
         sys.exit()       
-    if os.path.exists(args["o"] + "/") == True:
+    if os.path.exists(os.path.join(args["o"])) == True:
         print("\nOutput folder already exists please specify a new folder.")
         sys.exit()  
     if args["s"].upper() != "FAST" and args["s"].upper() != "IQTREE":
@@ -3987,14 +3990,12 @@ The analysis will be run using 16 processors using VeryFastTree for gene tree in
             print("Error more cores called than available You called %s but only %s available.\n" % (str(args["t"]),str(os.cpu_count())))  
             sys.exit()
             
-        
     if args["m"].upper() == "CONSENSUS":
-        astral_test_command = "astral"
-        astral_test = subprocess.Popen(astral_test_command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)    
-        output, error = astral_test.communicate()
-        if str(error).startswith("b'Accurate Species TRee ALgorithm IV") == False:
-            print("ASTRAL-IV could not be called from console.\nPlease make sure IQ-Tree is installed") 
-            print(str(error))
+        try:
+            astral_test_command = "astral"
+            astral_test = subprocess.Popen(astral_test_command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)    
+        except FileNotFoundError:
+            print("ASTRAL-IV could not be called from console.\nPlease make sure Astral-IV is installed")    
     return args
 
 
@@ -4022,21 +4023,30 @@ def makedb_command(make_command:str,Output:str):
 # Results in a set of diamond databases for each user proteome.
 def make_diamond_db(Input:str,cores:int,Output:str,Pathing:str):
     jobs = []
-    print(Input)
     for file in os.listdir(Input):  
         if file.startswith(".") == False:
             if file.endswith(".dmnd") == False:	
-                    genome_path = os.path.join(Input,file)  
-                    command = "diamond makedb --threads 1 --in " + genome_path + " -d " + genome_path    # 8 = placeholders
-                    jobs.append([command,Output])       
-    
+                genome_path = os.path.join(Input,file)  
+                command = "diamond makedb --threads 1 --in " + genome_path + " -d " + genome_path    # 8 = placeholders
+                jobs.append([command,Output])         
     with Pool(processes=cores) as pool:
-        sub_process_matrix = pool.starmap_async(makedb_command, jobs)
-        sub_process_matrix.wait()
-        if False in sub_process_matrix.get():
-            write_log("Error Making BLAST databases from input Proteomes : please check the log file for more information in " + Output ,Output,True)
-            sys.exit()
-
+        results = [pool.apply_async(makedb_command, args=job) for job in jobs]
+        pool.close()
+        pool.join()
+    success = all(r.get() for r in results)
+    if not success:
+        write_log(
+            "Error Making BLAST databases from input Proteomes : please check the log file for more information in " + Output,
+            Output,
+            True
+        )
+        sys.exit()    
+    
+    
+    
+    
+    
+    
 ### Multi-processing function to run blast from the fasta file of BUSCO genes against the user proteomes 
 # Inputs: 
     #Input: directory containing proteomes
@@ -4051,10 +4061,15 @@ def diamond_blast(Input:str, blast_results:str, Sequence:str,Output,pathing:str)
      #command = "diamond blastp -d %s -q %s -o %s --outfmt 5 --quiet --ignore-warnings --evalue 0.000002 --query-cover 75 --subject-cover 75" % (Input,Sequence,blast_results)
      #command = "diamond blastp --mid-sensitive -d %s -q %s -o %s --outfmt 5 --quiet --ignore-warnings" % (Input,Sequence,blast_results)
      
-     command = "diamond blastp -d %s -q %s -o %s --outfmt 5 --quiet --evalue 0.05 -k 0 --max-hsps 0 --threads 1" % (Input,Sequence,blast_results)
+     command = "diamond blastp -d %s -q %s -o %s --outfmt 5 --evalue 0.05 -k 0 --max-hsps 0 --threads 1" % (Input,Sequence,blast_results)
      process = subprocess.Popen(command.split(), stdout=subprocess.PIPE,stderr=subprocess.PIPE)    
      output, error = process.communicate()
-     write_log("Completed blast for: " + Input,Output,False)
+
+     if error.decode("utf-8").endswith("queries aligned.\n") == True:
+         write_log("Completed blast for: " + Input,Output,False)
+         return True
+     else:
+         return False
 
      
 
@@ -4068,18 +4083,42 @@ def diamond_blast(Input:str, blast_results:str, Sequence:str,Output,pathing:str)
     #busco_genes : string containing BUSCO genes in fasta file format
 def do_blast(Input:str,Output:str,pathing:str,cores:int,busco_genes:str):
     jobs = []
+
+    sequences = os.path.join(Output, "temp", "BUSCO_sequences.fasta")
+    os.makedirs(os.path.dirname(sequences), exist_ok=True)
+
+    with open(sequences, "w") as write_seq:
+        write_seq.write(busco_genes)
+
     for genome in os.listdir(Input):
-        if genome.endswith(".dmnd") == False:
-            if genome.startswith(".") == False:                
-                blast_results = Output + "/Blast_Results/" + genome + "_diamond.txt"
-                Sequences = Output + "/temp/BUSCO_sequences.fasta"
-                write_seq = open(Sequences,"w")
-                write_seq.write(busco_genes)
-                write_seq.close()
-                jobs.append([Input + genome,blast_results,Sequences,Output,pathing]) 
+        if not genome.startswith(".") and not genome.endswith(".dmnd"):
+            genome_path = os.path.join(Input, genome)
+            blast_results = os.path.join(Output, "Blast_Results", genome + "_diamond.txt")
+            jobs.append((genome_path, blast_results, sequences, Output, pathing))
+
     with Pool(processes=cores) as pool:
-        sub_process_matrix = pool.starmap_async(diamond_blast, jobs)
-        sub_process_matrix.wait()
+        results = [pool.apply_async(diamond_blast, args=job) for job in jobs]
+        pool.close()
+        pool.join()
+    success = True
+    for r in results:
+        try:
+            if not r.get():
+                success = False
+        except Exception as e:
+            print(f"Worker failed: {e}")
+            success = False
+
+    if not success:
+        write_log(
+            "Error Running BLAST files with " + Output,
+            Output,
+            True
+        )
+        sys.exit()                 
+                
+                
+    
 
 
 ## Extracts BLAST score data from the diamond blasts for each user proteome and ocnverts them into a numpy array.
@@ -4217,9 +4256,9 @@ def pseudo_alignment_mulitprocessing(genome, sequence_order, Output,cutoff,query
                     concatinated_sequence = concatinated_sequence + "-"*length
                     missing = missing  + 1
     else:
-        missing = len(genes_to_use)
+        missing = missing + 1
         
-    presence = (missing/len(genes_to_use))*100
+    presence = (missing/len(sequence_order))*100
 
     if presence < cutoff:
         
@@ -4240,6 +4279,17 @@ def pseudo_alignment_mulitprocessing(genome, sequence_order, Output,cutoff,query
 
 
 def psuedo_alignment(Input:str,Output:str,pathing:str,genes_to_use:list,cutoff:int,Tree:str,cores=int): 
+
+    
+    def batched(iterable, n):
+        it = iter(iterable)
+        while True:
+            batch = list(islice(it, n))
+            if not batch:
+                break
+            yield batch
+
+    
     
     output = open(Output + "/Results/psuedo_alignment.fasta","w")
     output_name = Output + "/Results/psuedo_alignment.fasta"
@@ -4270,7 +4320,7 @@ def psuedo_alignment(Input:str,Output:str,pathing:str,genes_to_use:list,cutoff:i
         if genome.endswith("dmnd") == False:
             if genome.startswith(".") == False:
                 genomes_to_do.append(genome)
-
+    
     mp_list = []
     for genome in genomes_to_do:
         if genome.endswith("dmnd") == False:
@@ -4278,20 +4328,25 @@ def psuedo_alignment(Input:str,Output:str,pathing:str,genes_to_use:list,cutoff:i
 
     ### Chunking step allows for pseudo-parrallel processing while reducing file creation number...
     ### file count = no.genes + no.speices not no.genes * no.species i.e. for 300 genes and 10,000 species it creates 10300 not 3,000,000 files (which then need to be concatinated)
-    chunked_list = chunks(mp_list,cores)
     missing_genomes = []
-    for chunk in chunked_list:
+    
+    for chunk in batched(mp_list, cores):
         with Pool(processes=cores) as pool:
-            missing = pool.starmap_async(pseudo_alignment_mulitprocessing, chunk)     
-            for mp_output in missing.get():
-                if len(mp_output) == 1:
-                    missing_genomes.append(mp_output)
-                else:
-                    concatinated_sequence_alignment = mp_output[0][0]
-                    write_to_file(concatinated_sequence_alignment,output_name)
-                    gene_sequences = mp_output[1]
-                    for gene_seq in gene_sequences:
-                        write_to_file(gene_seq[0],gene_seq[1])                       
+            jobs = [
+                pool.apply_async(pseudo_alignment_mulitprocessing, args=item)
+                for item in chunk
+            ]
+            results = [job.get() for job in jobs]          
+        for mp_output in results:
+            if len(mp_output) == 1:
+                missing_genomes.append(mp_output)
+            else:
+                concatinated_sequence_alignment = mp_output[0][0]
+                write_to_file(concatinated_sequence_alignment, output_name)
+    
+                gene_sequences = mp_output[1]
+                for gene_seq in gene_sequences:
+                    write_to_file(gene_seq[0], gene_seq[1])                    
 
     
     write_log("\n" + str(len(missing_genomes)) + " of " + str(len(genomes_to_do)) + " Protoemes below inclusion threshold (" + str(100 - cutoff) + "%)\n",Output,True)
@@ -4302,8 +4357,13 @@ def psuedo_alignment(Input:str,Output:str,pathing:str,genes_to_use:list,cutoff:i
 
 
 def make_gene_trees(tree_command:str):  
-    fastree_run = subprocess.Popen(tree_command.split(), stdout=subprocess.DEVNULL,stderr = subprocess.STDOUT)
-    output, error = fastree_run.communicate()
+    tree_run = subprocess.Popen(tree_command.split(), stdout=subprocess.DEVNULL,stderr = subprocess.STDOUT)
+    output, error = tree_run.communicate()
+
+    if output == None and error == None:
+        return True
+    else:
+        return False
     #fastree_run = subprocess.Popen(tree_command.split())
     #output, error = fastree_run.communicate()  
     
@@ -4336,13 +4396,20 @@ def make_tree(Tree:str,pathing:str,Output:str,cores:int,genes_to_use:list,method
             fasttree_command = "VeryFastTree -quiet -nopr -threads 1 -out %s %s" % (output_tree_path + ".nwk",input_alignemnt_path)
             
             if Tree.upper() == "FAST":
-                gene_tree_commands.append([fasttree_command])
+                gene_tree_commands.append(fasttree_command)
             else:
-                gene_tree_commands.append([iqtree_command])                
+                gene_tree_commands.append(iqtree_command)                
         
         with Pool(processes=cores) as pool:
-            sub_process_matrix = pool.starmap_async(make_gene_trees, gene_tree_commands)
-            sub_process_matrix.wait()
+            jobs = [pool.apply_async(make_gene_trees, args=(cmd,)) for cmd in gene_tree_commands]
+            pool.close()
+            pool.join()
+
+        results = [job.get() for job in jobs]
+        
+        if False in results:
+            write_log("Error making gene trees", Output, True)
+            sys.exit()
         #print(gene_tree_commands)
         
         ######### concatinate - keeping a count of how many must be more than something????
@@ -4893,7 +4960,6 @@ if __name__ == "__main__":
     ##### library imports
     import sys
     import os
-    import subprocess
     from datetime import datetime
     from multiprocessing import Pool
     import time
@@ -4902,7 +4968,7 @@ if __name__ == "__main__":
     import itertools
     import random
     import gzip
-
+    from itertools import islice
     ### Extracts flags and converts to readable format...
     running_commands = flags()
     Input = running_commands['f']
@@ -4930,7 +4996,7 @@ if __name__ == "__main__":
         from sklearn.metrics import silhouette_score
         
     except ModuleNotFoundError:
-        print("sklearn dependency not found please ensure sklearn is installed.")
+        print("sklearn dependency not found please ensure sci-kit learn is installed.")
         sys.exit()    
 
     # Run starts
