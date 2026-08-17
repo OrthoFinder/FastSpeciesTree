@@ -3925,7 +3925,7 @@ The analysis will be run using 16 processors using VeryFastTree for gene tree in
     parser.add_argument("-f", help="path..to..files/proteome_folder : Input path to directory containing proteomes files in fasta format")
     parser.add_argument("-o", help="path..to..dir/Output_Folder_name : Output folder path.")
     parser.add_argument("-t", help="Number of cores -- Default = 4.",type=int, default=4)
-    parser.add_argument("-s", help="Tree building method: fast = veryfasttree,iqtree = IQ-Tree",type=str,default="fasta")
+    parser.add_argument("-s", help="Tree building method: fast = veryfasttree,iqtree = IQ-Tree",type=str,default="FAST")
     parser.add_argument("-m", help="Species tree inference method: consensus = Astral, concatination = MSA-Conatination",type=str,default="concatination")
    
     #parser.add_argument("-R", help="Randomly fraction MSA alignment (example: -R 10 will select at random 10 percent of all MSA columns)",type=int, default=100)
