@@ -3952,7 +3952,7 @@ The analysis will be run using 16 processors using VeryFastTree for gene tree in
         print("\nOutput folder already exists please specify a new folder.")
         sys.exit()  
     if args["s"].upper() != "FAST" and args["s"].upper() != "IQTREE":
-        print("\nNo tree mode selected defaulting to use -s FAST. To run using IQ-TREE use the flag : -s sensitive\n")
+        print("\nNo tree mode selected defaulting to use -s FAST. To run using IQ-TREE use the flag : -s iqtree\n")
         sys.exit()
     """
     if args["s"] == None:
