@@ -14,7 +14,7 @@ FastSpeciesTree is built using python. It was tested using ```python<=3.10``` on
 2. VeryFastTree
 3. Numpy
 4. scikit-learn
-5. iqtree (optional -s sensitive)
+5. iqtree (optional -s iqtree)
 6. Astral-Pro IV (Aster). 
 
 These can be installed locally or through conda using the .yml file. Conda can be installed from [link](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html)
@@ -62,13 +62,13 @@ python3 FastSpeciesTree.py -f Example_Data/Proteomes -o Example_Data/Results -m 
 ```
 Default number of cores (2) and the tree method (VeryFastTree) are used. 
 
-To run using the sensitive model call IQTree as the tree builder and with more cores (16).  
+To run using IQTree as the tree builder and with more cores (16).  
 ```
-python3 FastSpeciesTree.py -f Example_Data/Proteomes -o Example_Data/Results_IQTREE -t 16 -s sensitive  -m concatination
+python3 FastSpeciesTree.py -f Example_Data/Proteomes -o Example_Data/Results_IQTREE -t 16 -s iqtree  -m concatination
 ```
 To run using the concensus model call consensus and specifiy which tool to use for gene tree inference.  
 ```
-python3 FastSpeciesTree.py -f Example_Data/Proteomes -o Example_Data/Results_IQTREE -t 16 -s sensitive -m consensus
+python3 FastSpeciesTree.py -f Example_Data/Proteomes -o Example_Data/Results_IQTREE -t 16 -s iqtree -m consensus
 ```
 
 
